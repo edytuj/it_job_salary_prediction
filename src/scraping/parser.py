@@ -30,8 +30,11 @@ def parse_job_listings(soup):
         )
         skills = [s.get_text(strip=True) for s in skills_tags]
 
+        job_id = job.get("href")
+
         results.append(
             {
+                "job_id": job_id,
                 "title": title,
                 "company": company,
                 "city": location,
