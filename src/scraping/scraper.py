@@ -8,9 +8,14 @@ from src.scraping.save import save_to_csv
 
 BASE_URL = "https://nofluffjobs.com/pl/jobs/backend"
 
-
-import requests
-import time
+CATEGORIES = [
+    "backend",
+    "frontend",
+    "data",
+    "devops",
+    "embedded",
+    "artificial-intelligence",
+]
 
 
 def fetch_page(url: str, retries: int = 3, delay: int = 3):
@@ -43,22 +48,36 @@ def fetch_page(url: str, retries: int = 3, delay: int = 3):
 
 
 def main():
+
     all_jobs = []
 
-    for page in range(1, 10):
+    seen_ids = set()
 
-        url = f"{BASE_URL}?page={page}"
-        html = fetch_page(url)
+    for category in CATEGORIES:
+        for page in range(1, 5):
 
-        soup = BeautifulSoup(html, "html.parser")
-        jobs = parse_job_listings(soup)
+            url = f"{BASE_URL}/{category}?page={page}"
+            html = fetch_page(url)
 
-        if not jobs:
-            break
+            soup = BeautifulSoup(html, "html.parser")
+            jobs = parse_job_listings(soup)
 
-        all_jobs.extend(jobs)
+            if not jobs:
+                break
 
-        time.sleep(1)
+            for job in jobs:
+                job_id = job["job_id"]
+
+                if job_id in seen_ids:
+                    continue
+
+                seen_ids.add(job_id)
+                all_jobs.extend(job)
+
+            time.sleep(1)
+
+    save_to_csv(jobs, "data/raw/jobs_raw.csv")
+    print(f"Saved {len(jobs)} jobs")
 
 
 if __name__ == "__main__":
