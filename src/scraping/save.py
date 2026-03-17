@@ -1,8 +1,16 @@
+import os
 import pandas as pd
 
 
 def save_to_csv(data, path):
-
+    """
+    Save DataFrame to CSV.
+    - If a file exists -> append data without a header.
+    - Otherwise -> create it with a header.
+    """
     df = pd.DataFrame(data)
 
-    df.to_csv(path, index=False)
+    if os.path.exists(path):
+        df.to_csv(path, mode="a", header=False, index=False)
+    else:
+        df.to_csv(path, mode="w", header=True, index=False)

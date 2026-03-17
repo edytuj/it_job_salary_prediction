@@ -76,8 +76,7 @@ def main():
 
             time.sleep(1)
 
-    save_to_csv(jobs, "data/raw/jobs_raw.csv")
-    print(f"Saved {len(jobs)} jobs")
+        save_to_csv(jobs, "data/raw/jobs_raw.csv")
 
 
 if __name__ == "__main__":
