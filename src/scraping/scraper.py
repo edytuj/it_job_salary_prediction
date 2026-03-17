@@ -1,4 +1,6 @@
 import requests
+import time
+
 from bs4 import BeautifulSoup
 
 from src.scraping.parser import parse_job_listings
@@ -41,15 +43,22 @@ def fetch_page(url: str, retries: int = 3, delay: int = 3):
 
 
 def main():
-    html = fetch_page(BASE_URL)
+    all_jobs = []
 
-    soup = BeautifulSoup(html, "html.parser")
+    for page in range(1, 10):
 
-    jobs = parse_job_listings(soup)
+        url = f"{BASE_URL}?page={page}"
+        html = fetch_page(url)
 
-    save_to_csv(jobs, "data/raw/jobs_raw.csv")
+        soup = BeautifulSoup(html, "html.parser")
+        jobs = parse_job_listings(soup)
 
-    print(f"Saved {len(jobs)} jobs")
+        if not jobs:
+            break
+
+        all_jobs.extend(jobs)
+
+        time.sleep(1)
 
 
 if __name__ == "__main__":
