@@ -1,14 +1,16 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 
+
 def load_data(path):
     df = pd.read_csv(path)
     return df
+
 
 def prepare_data(df):
     # take only jobs with known salary
@@ -41,7 +43,7 @@ def train_models(X_train, y_train):
 
     lr = LinearRegression()
     lr.fit(X_train, y_train)
-   
+
     models["linear_regression"] = lr
 
     rf = RandomForestRegressor(n_estimators=200, random_state=42)
@@ -49,6 +51,7 @@ def train_models(X_train, y_train):
     models["random_forest"] = rf
 
     return models
+
 
 def baseline_median(y_train, y_test):
     median = y_train.median()
@@ -58,6 +61,7 @@ def baseline_median(y_train, y_test):
     mae = mean_absolute_error(y_test, pred)
 
     return mae
+
 
 def evaluate(models, X_test, y_test):
     results = {}
@@ -72,6 +76,17 @@ def evaluate(models, X_test, y_test):
             "MAE": mae,
             "R2": r2,
         }
+
+    return results
+
+
+def cross_validate_models(models, X, y):
+    results = {}
+
+    for name, model in models.items():
+        scores = cross_val_score(model, X, y, cv=5, scoring="r2")
+
+        results[name] = scores
 
     return results
 
@@ -95,6 +110,7 @@ def main():
 
     print("Evaluating models...")
     results = evaluate(models, X_test, y_test)
+    cv_results = cross_validate_models(models, X, y)
 
     print("----BASELINE----")
     print(f"Median MAE: {baseline_mae:.2f}")
@@ -105,8 +121,10 @@ def main():
         print(f"\nModel: {model_name}")
         print(f"MAE: {metrics['MAE']:.2f}")
         print(f"R2: {metrics['R2']:.4f}")
+        print(f"Cross-validation:")
+        print(f"R2 scores: {cv_results[model_name]}")
+        print(f"R2 mean: {cv_results[model_name].mean():.4f}")
 
 
 if __name__ == "__main__":
     main()
-
