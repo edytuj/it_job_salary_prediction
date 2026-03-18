@@ -54,9 +54,11 @@ def main():
     seen_ids = set()
 
     for category in CATEGORIES:
-        for page in range(1, 5):
+        for page in range(1, 20):
+            print(f'"category="{category}", page="{page}"')
 
             url = f"{BASE_URL}/{category}?page={page}"
+            # url = f"{BASE_URL}?page={page}"
             html = fetch_page(url)
 
             soup = BeautifulSoup(html, "html.parser")
@@ -72,11 +74,11 @@ def main():
                     continue
 
                 seen_ids.add(job_id)
-                all_jobs.extend(job)
+                all_jobs.append(job)
 
             time.sleep(1)
 
-        save_to_csv(jobs, "data/raw/jobs_raw.csv")
+        save_to_csv(all_jobs, "data/raw/jobs_raw.csv")
 
 
 if __name__ == "__main__":

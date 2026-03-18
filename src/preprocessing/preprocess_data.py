@@ -12,8 +12,6 @@ def main():
 
     df = pd.read_csv(RAW_PATH)
 
-    df = df.drop_duplicates(subset="job_id")
-
     # cleaning
     df["title_clean"] = df["title"].apply(clean_title)
     df["company_clean"] = df["company"].apply(clean_company)

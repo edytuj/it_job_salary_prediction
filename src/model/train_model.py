@@ -6,11 +6,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 
-
 def load_data(path):
     df = pd.read_csv(path)
     return df
-
 
 def prepare_data(df):
     # take only jobs with known salary
@@ -25,6 +23,7 @@ def prepare_data(df):
         "title_clean",
         "company_clean",
         "city_clean",
+        "skills_filtered",
     ]
 
     X = df.drop(columns=[col for col in drop_cols if col in df.columns])
@@ -42,7 +41,7 @@ def train_models(X_train, y_train):
 
     lr = LinearRegression()
     lr.fit(X_train, y_train)
-
+   
     models["linear_regression"] = lr
 
     rf = RandomForestRegressor(n_estimators=200, random_state=42)
@@ -50,7 +49,6 @@ def train_models(X_train, y_train):
     models["random_forest"] = rf
 
     return models
-
 
 def baseline_median(y_train, y_test):
     median = y_train.median()
@@ -60,7 +58,6 @@ def baseline_median(y_train, y_test):
     mae = mean_absolute_error(y_test, pred)
 
     return mae
-
 
 def evaluate(models, X_test, y_test):
     results = {}
@@ -112,3 +109,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

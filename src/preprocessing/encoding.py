@@ -52,7 +52,9 @@ def encode_skills(df, top_n=30):
         .max()
     )
 
-    df = df.join(skills_dummies)
+    df = df.join(skills_dummies, how="left").fillna(0)
+
+    print((df["skills_filtered"].apply(len) == 0).mean())
 
     return df
 
