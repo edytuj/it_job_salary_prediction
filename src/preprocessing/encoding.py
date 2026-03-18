@@ -1,6 +1,8 @@
 import pandas as pd
 import ast
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 TOP_SKILLS = 50
 
 
@@ -59,6 +61,27 @@ def encode_skills(df, top_n=30):
     return df
 
 
+def encode_skills_tfidf(df, max_features=50):
+    texts = df["skills_clean"].apply(
+        lambda x: " ".join(x) if isinstance(x, list) else ""
+    )
+
+    vectorizer = TfidfVectorizer(max_features=max_features)
+    X_tfidf = vectorizer.fit_transform(texts)
+
+    tfidf_df = pd.DataFrame(
+        X_tfidf.toarray(),
+        columns=[f"skill_{s}" for s in vectorizer.get_feature_names_out()],
+        index=df.index,
+    )
+
+    df = pd.concat([df, tfidf_df], axis=1)
+
+    print(f"Fraction with no skills: {(texts.str.strip() == '').mean():.2%}")
+
+    return df
+
+
 def encode_city(df):
     """
     One-hot encoding for city column.
@@ -66,7 +89,6 @@ def encode_city(df):
 
     city_dummies = pd.get_dummies(df["city_clean"], prefix="city")
 
-    # df["city_encoded"] = city_dummies
     df = pd.concat([df, city_dummies], axis=1)
 
     return df
@@ -78,7 +100,7 @@ def encode_all(df):
     """
 
     df = encode_seniority(df)
-    df = encode_skills(df)
+    df = encode_skills_tfidf(df)
     df = encode_city(df)
 
     df = df.drop(
