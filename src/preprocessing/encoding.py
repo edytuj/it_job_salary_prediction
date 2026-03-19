@@ -82,14 +82,19 @@ def encode_skills_tfidf(df, max_features=50):
     return df
 
 
-def encode_city(df, top_n=15, always_include="remote"):
+def encode_city(df, threshold=0.01, always_include="remote"):
     """
     One-hot encoding for city column, rare cities changed to OTHER.
-    top_n: how many most popular cities should remain
+    threshold: minimum fraction of total records a city must have to be considered as a separate category
     always_include: city that should be always present in the top cities
     """
 
-    top_cities = df["city_clean"].value_counts().head(top_n).index
+    threshold = 0.01 * len(df)
+    top_cities = (
+        df["city_clean"]
+        .value_counts()[df["city_clean"].value_counts() >= threshold]
+        .index
+    )
 
     if always_include not in top_cities:
         if len(top_cities) == top_n:
