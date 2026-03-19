@@ -82,12 +82,27 @@ def encode_skills_tfidf(df, max_features=50):
     return df
 
 
-def encode_city(df):
+def encode_city(df, top_n=15, always_include="remote"):
     """
-    One-hot encoding for city column.
+    One-hot encoding for city column, rare cities changed to OTHER.
+    top_n: how many most popular cities should remain
+    always_include: city that should be always present in the top cities
     """
 
-    city_dummies = pd.get_dummies(df["city_clean"], prefix="city")
+    top_cities = df["city_clean"].value_counts().head(top_n).index
+
+    if always_include not in top_cities:
+        if len(top_cities) == top_n:
+            top_cities[-1] = always_include
+        else:
+            top_cities.append(always_include)
+
+    df["city_clean_top"] = df["city_clean"].apply(
+        lambda x: x if x in top_cities else "OTHER"
+    )
+
+    city_dummies = pd.get_dummies(df["city_clean_top"], prefix="city")
+    print(city_dummies)
 
     df = pd.concat([df, city_dummies], axis=1)
 

@@ -25,6 +25,7 @@ def prepare_data(df):
         "title_clean",
         "company_clean",
         "city_clean",
+        "city_clean_top",
         "skills_filtered",
     ]
 
