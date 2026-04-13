@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+from unidecode import unidecode
 
 
 def clean_title(title):
@@ -32,9 +33,15 @@ def clean_city(city):
         return None
 
     city = city.strip().lower()
+    city = unidecode(city).title()
 
     if city in ["zdalnie", "remote"]:
         return "remote"
+
+    city_map = {"warsaw": "warszawa"}
+
+    if city in city_map:
+        return city_map[city]
 
     return city
 

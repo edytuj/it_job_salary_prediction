@@ -97,17 +97,13 @@ def encode_city(df, threshold=0.01, always_include="remote"):
     )
 
     if always_include not in top_cities:
-        if len(top_cities) == top_n:
-            top_cities[-1] = always_include
-        else:
-            top_cities.append(always_include)
+        top_cities.append(pd.Index([always_include]))
 
     df["city_clean_top"] = df["city_clean"].apply(
         lambda x: x if x in top_cities else "OTHER"
     )
 
     city_dummies = pd.get_dummies(df["city_clean_top"], prefix="city")
-    print(city_dummies)
 
     df = pd.concat([df, city_dummies], axis=1)
 
