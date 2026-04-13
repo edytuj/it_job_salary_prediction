@@ -5,7 +5,10 @@ from .features import compute_salary_avg, extract_seniority, add_skills_count
 from .encoding import encode_all
 
 RAW_PATH = "data/raw/jobs_raw.csv"
-PROCESSED_PATH = "data/processed/jobs_processed.csv"
+PROCESSED_PATH = "data/processed/jobs_processed.parquet"
+
+MIN_SALARY_AVG = 3000
+MAX_SALARY_AVG = 100000
 
 
 def main():
@@ -43,15 +46,25 @@ def main():
 
     df = df[columns]
 
+    df = df.drop_duplicates(subset="job_id")
+
+    # remove outliers
+    df = df[(df["salary_avg"] > MIN_SALARY_AVG) & (df["salary_avg"] < MAX_SALARY_AVG)]
+
     # encoding
-    df = encode_all(df)
+    # df = encode_all(df)
 
     # remove entries with no salary
     df = df[df["salary_known"] == 1]
 
+    df = df.drop(
+        columns=["job_id", "company_clean", "salary_min", "salary_max", "salary_known"],
+        errors="ignore",
+    )
+
     # print(df.isna().sum())
 
-    df.to_csv(PROCESSED_PATH, index=False)
+    df.to_parquet(PROCESSED_PATH)
 
     print("Dataset processed and saved.")
 

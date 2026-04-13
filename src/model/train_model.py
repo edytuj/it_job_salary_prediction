@@ -6,30 +6,20 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 
+from sklearn.pipeline import Pipeline
+
+from .pipeline import build_preprocessor
+
 
 def load_data(path):
-    df = pd.read_csv(path)
+    df = pd.read_parquet(path)
     return df
 
 
 def prepare_data(df):
-    # take only jobs with known salary
-    df = df[df["salary_known"] == 1].copy()
 
-    drop_cols = [
-        "salary_min",
-        "salary_max",
-        "salary_avg",
-        "salary_known",
-        "job_id",
-        "title_clean",
-        "company_clean",
-        "city_clean",
-        "city_clean_top",
-        "skills_filtered",
-    ]
+    X = df.drop(columns=["salary_avg"])
 
-    X = df.drop(columns=[col for col in drop_cols if col in df.columns])
     y = df["salary_avg"]
 
     return X, y
@@ -42,13 +32,21 @@ def split_data(X, y):
 def train_models(X_train, y_train):
     models = {}
 
-    lr = LinearRegression()
+    preprocessor = build_preprocessor()
+
+    lr = Pipeline([("preprocessing", preprocessor), ("model", LinearRegression())])
+
+    rf = Pipeline(
+        [
+            ("preprocessing", preprocessor),
+            ("model", RandomForestRegressor(n_estimators=200, random_state=42)),
+        ]
+    )
+
     lr.fit(X_train, y_train)
+    rf.fit(X_train, y_train)
 
     models["linear_regression"] = lr
-
-    rf = RandomForestRegressor(n_estimators=200, random_state=42)
-    rf.fit(X_train, y_train)
     models["random_forest"] = rf
 
     return models
@@ -93,7 +91,7 @@ def cross_validate_models(models, X, y):
 
 
 def main():
-    input_path = "data/processed/jobs_processed.csv"
+    input_path = "data/processed/jobs_processed.parquet"
 
     df = load_data(input_path)
 
@@ -104,6 +102,7 @@ def main():
     X_train, X_test, y_train, y_test = split_data(X, y)
 
     print("Training...")
+
     models = train_models(X_train, y_train)
 
     print("Evaluating baseline...")
