@@ -7,9 +7,23 @@ def clean_title(title):
     if pd.isna(title):
         return None
 
-    title = title.strip().lower()
+    STOPWORDS = [
+        "developer",
+        "engineer",
+        "specialist",
+        "development",
+        "software",
+        "with",
+        "programista",
+        "programistka",
+        "(m/f)",
+        "m/f",
+    ]
 
-    return title
+    title = title.strip().lower()
+    words = title.split()
+
+    return "".join([w for w in words if w not in STOPWORDS])
 
 
 def clean_company(company):

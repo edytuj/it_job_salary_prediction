@@ -9,5 +9,7 @@ def build_preprocessor():
             ("seniority", SeniorityEncoder(), ["seniority"]),
             ("skills", SkillsTfidfEncoder(max_features=50), ["skills_clean"]),
             ("city", CityEncoder(threshold=0.01), ["city_clean"]),
-        ]
+            ("num", "passthrough", ["skills_count"]),
+        ],
+        remainder="drop",
     )

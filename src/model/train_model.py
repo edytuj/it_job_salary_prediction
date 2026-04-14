@@ -90,6 +90,41 @@ def cross_validate_models(models, X, y):
     return results
 
 
+def analyze_text_features(model):
+    """
+    Show most important words from TF-IDF based on Linear Regression coefficients.
+    """
+
+    preprocessor = model.named_steps["preprocessor"]
+    regressor = model.named_steps["model"]  # lub "regressor" — sprawdź nazwę
+
+    tfidf = preprocessor.named_transformers_["text"]
+    feature_names = tfidf.get_feature_names_out()
+
+    feature_names = preprocessor.get_feature_names_out()
+
+    df_coef = pd.DataFrame({"feature": feature_names, "coef": regressor.coef_})
+
+    text_coefs = df_coef[df_coef["feature"].str.startswith("text__")]
+
+    # coefs = regressor.coef_
+    # text_coefs = coefs[:len(feature_names)]
+
+    top_positive = sorted(
+        zip(feature_names, text_coefs), key=lambda x: x[1], reverse=True
+    )[:15]
+
+    print("\nTop positive words:")
+    for word, coef in top_positive:
+        print(f"{word:20} {coef:.2f}")
+
+    top_negative = sorted(zip(feature_names, text_coefs), key=lambda x: x[1])[:15]
+
+    print("\nTop negative words:")
+    for word, coef in top_negative:
+        print(f"{word:20} {coef:.2f}")
+
+
 def main():
     input_path = "data/processed/jobs_processed.parquet"
 
@@ -124,6 +159,9 @@ def main():
         print(f"Cross-validation:")
         print(f"R2 scores: {cv_results[model_name]}")
         print(f"R2 mean: {cv_results[model_name].mean():.4f}")
+
+    # print("\n----FEATURE IMPORTANCE (TEXT)----")
+    # analyze_text_features(models["linear_regression"])
 
 
 if __name__ == "__main__":
