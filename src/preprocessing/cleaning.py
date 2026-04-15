@@ -23,7 +23,7 @@ def clean_title(title):
     title = title.strip().lower()
     words = title.split()
 
-    return "".join([w for w in words if w not in STOPWORDS])
+    return " ".join([w for w in words if w not in STOPWORDS])
 
 
 def clean_company(company):

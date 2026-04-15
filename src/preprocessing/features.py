@@ -12,8 +12,6 @@ def extract_seniority(title):
     if not isinstance(title, str):
         return None
 
-    title = title.lower()
-
     patterns = {
         "intern": r"\bintern\b",
         "junior": r"\bjunior\b|\bjr\b",

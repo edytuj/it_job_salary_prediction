@@ -15,6 +15,9 @@ def main():
 
     df = pd.read_csv(RAW_PATH)
 
+    df["salary_min"] = pd.to_numeric(df["salary_min"], errors="coerce")
+    df["salary_max"] = pd.to_numeric(df["salary_max"], errors="coerce")
+
     # cleaning
     df["title_clean"] = df["title"].apply(clean_title)
     df["company_clean"] = df["company"].apply(clean_company)
@@ -51,18 +54,13 @@ def main():
     # remove outliers
     df = df[(df["salary_avg"] > MIN_SALARY_AVG) & (df["salary_avg"] < MAX_SALARY_AVG)]
 
-    # encoding
-    # df = encode_all(df)
-
     # remove entries with no salary
     df = df[df["salary_known"] == 1]
-
+    print(df[["title_clean", "skills_clean"]].head())
     df = df.drop(
         columns=["job_id", "company_clean", "salary_min", "salary_max", "salary_known"],
         errors="ignore",
     )
-
-    # print(df.isna().sum())
 
     df.to_parquet(PROCESSED_PATH)
 

@@ -12,7 +12,7 @@ class SeniorityEncoder(BaseEstimator, TransformerMixin):
 
     def __init__(self, column="seniority"):
         self.column = column
-        self.mapping = {"junior": 0, "mid": 1, "senior": 2}
+        self.mapping = {"junior": 0, "mid": 1, "senior": 2, "lead": 3, "principal": 4}
 
     def fit(self, X, y=None):
         return self
@@ -89,6 +89,61 @@ class CityEncoder(BaseEstimator, TransformerMixin):
         # be sure that all columns exist
         for city in self.top_cities_ + ["OTHER"]:
             col = f"city_{city}"
+            if col not in dummies:
+                dummies[col] = 0
+
+        return dummies
+
+    from sklearn.base import BaseEstimator, TransformerMixin
+
+
+import pandas as pd
+
+
+class TitleAreaEncoder(BaseEstimator, TransformerMixin):
+    """
+    Extracts job area from title (e.g. data, backend, frontend, devops, qa)
+    and returns one-hot encoded features.
+    """
+
+    def __init__(self, column="title_clean"):
+        self.column = column
+
+    def _extract_area(self, title):
+        if not isinstance(title, str):
+            return "other"
+
+        title = title.lower()
+
+        if "data" in title or "analyst" in title:
+            return "data"
+        elif "machine learning" in title or "ml" in title or "ai" in title:
+            return "ml"
+        elif "frontend" in title:
+            return "frontend"
+        elif "backend" in title:
+            return "backend"
+        elif "fullstack" in title or "full stack" in title:
+            return "fullstack"
+        elif "devops" in title:
+            return "devops"
+        elif "qa" in title or "test" in title:
+            return "qa"
+        else:
+            return "other"
+
+    def fit(self, X, y=None):
+        areas = X[self.column].apply(self._extract_area)
+        self.categories_ = sorted(areas.unique())
+        return self
+
+    def transform(self, X):
+        areas = X[self.column].apply(self._extract_area)
+
+        dummies = pd.get_dummies(areas, prefix="area")
+
+        for cat in self.categories_:
+            col = f"area_{cat}"
             if col not in dummies:
                 dummies[col] = 0
 

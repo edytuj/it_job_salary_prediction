@@ -1,6 +1,11 @@
 from sklearn.compose import ColumnTransformer
 
-from preprocessing.transformers import SeniorityEncoder, SkillsTfidfEncoder, CityEncoder
+from preprocessing.transformers import (
+    SeniorityEncoder,
+    SkillsTfidfEncoder,
+    CityEncoder,
+    TitleAreaEncoder,
+)
 
 
 def build_preprocessor():
@@ -8,7 +13,8 @@ def build_preprocessor():
         transformers=[
             ("seniority", SeniorityEncoder(), ["seniority"]),
             ("skills", SkillsTfidfEncoder(max_features=50), ["skills_clean"]),
-            ("city", CityEncoder(threshold=0.01), ["city_clean"]),
+            ("city", CityEncoder(threshold=0.15), ["city_clean"]),
+            # ("area", TitleAreaEncoder(), ["title_clean"]),
             ("num", "passthrough", ["skills_count"]),
         ],
         remainder="drop",
