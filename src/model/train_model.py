@@ -3,7 +3,7 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.linear_model import Ridge
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 
 from sklearn.pipeline import Pipeline
@@ -66,6 +66,31 @@ def train_ridge_with_grid(preprocessor, X_train, y_train):
     return grid.best_estimator_
 
 
+def train_hgb_with_grid(preprocessor, X_train, y_train):
+
+    pipe = Pipeline(
+        [
+            ("preprocessor", preprocessor),
+            ("model", HistGradientBoostingRegressor(random_state=42)),
+        ]
+    )
+
+    param_grid = {
+        "model__max_depth": [3, 5, 10],
+        "model__learning_rate": [0.01, 0.05, 0.1],
+        "model__max_iter": [100, 200],
+        "model__min_samples_leaf": [10, 20, 50],
+    }
+
+    grid = GridSearchCV(pipe, param_grid, cv=5, scoring="r2", n_jobs=-1)
+
+    grid.fit(X_train, y_train)
+
+    print("Best params for gradient boosting regressor:", grid.best_params_)
+
+    return grid.best_estimator_
+
+
 def train_models(X_train, y_train):
     models = {}
 
@@ -73,9 +98,11 @@ def train_models(X_train, y_train):
 
     ridge = train_ridge_with_grid(preprocessor, X_train, y_train)
     rf = train_rf_with_grid(preprocessor, X_train, y_train)
+    hgb = train_hgb_with_grid(preprocessor, X_train, y_train)
 
     models["ridge"] = ridge
     models["random_forest"] = rf
+    models["hgb"] = hgb
 
     return models
 
