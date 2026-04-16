@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.linear_model import Ridge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 
@@ -29,24 +29,52 @@ def split_data(X, y):
     return train_test_split(X, y, test_size=0.2, random_state=42)
 
 
+def train_rf_with_grid(preprocessor, X_train, y_train):
+    pipe = Pipeline(
+        [
+            ("preprocessing", preprocessor),
+            ("model", RandomForestRegressor(random_state=42)),
+        ]
+    )
+
+    param_grid = {
+        "model__n_estimators": [100, 200],
+        "model__max_depth": [5, 10, 15, None],
+        "model__min_samples_split": [2, 5, 10],
+    }
+
+    grid = GridSearchCV(pipe, param_grid, cv=5, scoring="r2", n_jobs=-1)
+
+    grid.fit(X_train, y_train)
+
+    print("Best params for random forest:", grid.best_params_)
+
+    return grid.best_estimator_
+
+
+def train_ridge_with_grid(preprocessor, X_train, y_train):
+    pipe = Pipeline([("preprocessor", preprocessor), ("model", Ridge())])
+
+    param_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
+
+    grid = GridSearchCV(pipe, param_grid, cv=5, scoring="r2")
+
+    grid.fit(X_train, y_train)
+
+    print("Best alpha:", grid.best_params_)
+
+    return grid.best_estimator_
+
+
 def train_models(X_train, y_train):
     models = {}
 
     preprocessor = build_preprocessor()
 
-    lr = Pipeline([("preprocessing", preprocessor), ("model", LinearRegression())])
+    ridge = train_ridge_with_grid(preprocessor, X_train, y_train)
+    rf = train_rf_with_grid(preprocessor, X_train, y_train)
 
-    rf = Pipeline(
-        [
-            ("preprocessing", preprocessor),
-            ("model", RandomForestRegressor(n_estimators=200, random_state=42)),
-        ]
-    )
-
-    lr.fit(X_train, y_train)
-    rf.fit(X_train, y_train)
-
-    models["linear_regression"] = lr
+    models["ridge"] = ridge
     models["random_forest"] = rf
 
     return models
@@ -90,41 +118,6 @@ def cross_validate_models(models, X, y):
     return results
 
 
-def analyze_text_features(model):
-    """
-    Show most important words from TF-IDF based on Linear Regression coefficients.
-    """
-
-    preprocessor = model.named_steps["preprocessor"]
-    regressor = model.named_steps["model"]  # lub "regressor" — sprawdź nazwę
-
-    tfidf = preprocessor.named_transformers_["text"]
-    feature_names = tfidf.get_feature_names_out()
-
-    feature_names = preprocessor.get_feature_names_out()
-
-    df_coef = pd.DataFrame({"feature": feature_names, "coef": regressor.coef_})
-
-    text_coefs = df_coef[df_coef["feature"].str.startswith("text__")]
-
-    # coefs = regressor.coef_
-    # text_coefs = coefs[:len(feature_names)]
-
-    top_positive = sorted(
-        zip(feature_names, text_coefs), key=lambda x: x[1], reverse=True
-    )[:15]
-
-    print("\nTop positive words:")
-    for word, coef in top_positive:
-        print(f"{word:20} {coef:.2f}")
-
-    top_negative = sorted(zip(feature_names, text_coefs), key=lambda x: x[1])[:15]
-
-    print("\nTop negative words:")
-    for word, coef in top_negative:
-        print(f"{word:20} {coef:.2f}")
-
-
 def main():
     input_path = "data/processed/jobs_processed.parquet"
 
@@ -159,9 +152,6 @@ def main():
         print(f"Cross-validation:")
         print(f"R2 scores: {cv_results[model_name]}")
         print(f"R2 mean: {cv_results[model_name].mean():.4f}")
-
-    # print("\n----FEATURE IMPORTANCE (TEXT)----")
-    # analyze_text_features(models["linear_regression"])
 
 
 if __name__ == "__main__":
