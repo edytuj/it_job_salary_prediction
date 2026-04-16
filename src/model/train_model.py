@@ -118,10 +118,31 @@ def cross_validate_models(models, X, y):
     return results
 
 
+def analyze_skill_impact(df, min_count=50):
+    all_skills = df["skills_clean"].explode()
+
+    results = []
+
+    for skill, count in all_skills.value_counts().items():
+        if count < min_count:
+            continue
+
+        has_skill = df["skills_clean"].apply(lambda x: skill in x)
+        avg_salary = df[has_skill]["salary_avg"].mean()
+
+        results.append((skill, count, avg_salary))
+
+    result_df = pd.DataFrame(results, columns=["skill", "count", "avg_salary"])
+    return result_df.sort_values("count", ascending=False)
+
+
 def main():
     input_path = "data/processed/jobs_processed.parquet"
 
     df = load_data(input_path)
+
+    # df_analysis = analyze_skill_impact(df)
+    # print(df_analysis.head(20))
 
     X, y = prepare_data(df)
 

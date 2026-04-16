@@ -59,6 +59,43 @@ class SkillsTfidfEncoder(BaseEstimator, TransformerMixin):
         )
 
 
+class TopSkillsEncoder(BaseEstimator, TransformerMixin):
+    """
+    Create binary features for top N most frequent skills.
+    """
+
+    def __init__(self, column="skills_clean", top_n=10):
+        self.column = column
+        self.top_n = top_n
+
+    def fit(self, X, y=None):
+        # explode skills
+        all_skills = X[self.column].explode()
+
+        # get top skills
+        top_skills = all_skills.value_counts()
+
+        filtered = top_skills[
+            (top_skills > 0.05 * len(X)) & (top_skills < 0.5 * len(X))
+        ]
+
+        self.top_skills_ = filtered
+
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+
+        result = pd.DataFrame(index=X.index)
+
+        for skill in self.top_skills_:
+            result[f"has_{skill}"] = X[self.column].apply(
+                lambda x: skill in x if isinstance(x, (list, tuple)) else False
+            )
+
+        return result
+
+
 class CityEncoder(BaseEstimator, TransformerMixin):
     """
     One-hot encode cities, rare cities grouped into 'OTHER'.
