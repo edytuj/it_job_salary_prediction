@@ -56,7 +56,7 @@ def main():
 
     # remove entries with no salary
     df = df[df["salary_known"] == 1]
-    print(df[["title_clean", "skills_clean"]].head())
+
     df = df.drop(
         columns=["job_id", "company_clean", "salary_min", "salary_max", "salary_known"],
         errors="ignore",

@@ -23,6 +23,9 @@ class SeniorityEncoder(BaseEstimator, TransformerMixin):
             index=X.index,
         )
 
+    def get_feature_names_out(self, input_features=None):
+        return [self.column + "_encoded"]
+
 
 class SkillsTfidfEncoder(BaseEstimator, TransformerMixin):
     """
@@ -57,6 +60,9 @@ class SkillsTfidfEncoder(BaseEstimator, TransformerMixin):
             columns=[f"skill_{s}" for s in self.vectorizer.get_feature_names_out()],
             index=X.index,
         )
+
+    def get_feature_names_out(self, input_features=None):
+        return [f"skill_{s}" for s in self.vectorizer.get_feature_names_out()]
 
 
 class TopSkillsEncoder(BaseEstimator, TransformerMixin):
@@ -113,6 +119,9 @@ class CityEncoder(BaseEstimator, TransformerMixin):
         self.top_cities_ = list(counts[counts >= self.threshold * n].index)
         if self.always_include not in self.top_cities_:
             self.top_cities_.append(self.always_include)
+
+        self.feature_names_ = [f"city_{city}" for city in self.top_cities_ + ["OTHER"]]
+
         return self
 
     def transform(self, X):
@@ -129,12 +138,12 @@ class CityEncoder(BaseEstimator, TransformerMixin):
             if col not in dummies:
                 dummies[col] = 0
 
+        dummies = dummies[self.feature_names_]
+
         return dummies
 
-    from sklearn.base import BaseEstimator, TransformerMixin
-
-
-import pandas as pd
+    def get_feature_names_out(self, input_features=None):
+        return self.feature_names_
 
 
 class TitleAreaEncoder(BaseEstimator, TransformerMixin):

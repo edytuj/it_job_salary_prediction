@@ -32,7 +32,7 @@ def split_data(X, y):
 def train_rf_with_grid(preprocessor, X_train, y_train):
     pipe = Pipeline(
         [
-            ("preprocessing", preprocessor),
+            ("preprocessor", preprocessor),
             ("model", RandomForestRegressor(random_state=42)),
         ]
     )
@@ -163,6 +163,19 @@ def analyze_skill_impact(df, min_count=50):
     return result_df.sort_values("count", ascending=False)
 
 
+def analyze_feature_importance_for_random_forest(model):
+
+    feature_names = model.named_steps["preprocessor"].get_feature_names_out()
+
+    importances = model.named_steps["model"].feature_importances_
+
+    df_importance = pd.DataFrame(
+        {"feature": feature_names, "importance": importances}
+    ).sort_values("importance", ascending=False)
+
+    print(df_importance.head(20))
+
+
 def main():
     input_path = "data/processed/jobs_processed.parquet"
 
@@ -200,6 +213,8 @@ def main():
         print(f"Cross-validation:")
         print(f"R2 scores: {cv_results[model_name]}")
         print(f"R2 mean: {cv_results[model_name].mean():.4f}")
+
+    analyze_feature_importance_for_random_forest(models["random_forest"])
 
 
 if __name__ == "__main__":

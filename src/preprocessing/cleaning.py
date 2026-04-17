@@ -33,10 +33,10 @@ def clean_company(company):
     company = company.strip(" \"'„”")
     company = company.lower()
 
-    # usuń tekst w nawiasach
+    # remove text in braces
     company = re.sub(r"\(.*?\)", "", company)
 
-    # usuń formy prawne
+    # remove legal form
     company = re.sub(r"\b(sp\.?\s*z\s*o\.?o\.?|s\.?a\.?)\b", "", company)
 
     return company.strip()
@@ -47,12 +47,9 @@ def clean_city(city):
         return None
 
     city = city.strip().lower()
-    city = unidecode(city).title()
+    city = unidecode(city)
 
-    if city in ["zdalnie", "remote"]:
-        return "remote"
-
-    city_map = {"warsaw": "warszawa"}
+    city_map = {"warsaw": "warszawa", "zdalnie": "remote"}
 
     if city in city_map:
         return city_map[city]
@@ -67,4 +64,17 @@ def clean_skills(skills):
     skills = skills.strip("[]")
     skills = skills.replace("'", "").split(",")
 
-    return [s.strip().lower() for s in skills if s.strip()]
+    skills = [s.strip().replace(" ", "_").lower() for s in skills if s.strip()]
+
+    TO_REMOVE = {"git", "angielski", "polski"}
+    skills = [s for s in skills if s not in TO_REMOVE]
+
+    skill_map = {
+        "machine_learning": "ml",
+        "uczenie_maszynowe": "ml",
+        "analiza_danych": "data",
+    }
+
+    skills = [skill_map.get(s, s) for s in skills]
+
+    return skills
