@@ -1,3 +1,7 @@
+import joblib
+import os
+from datetime import datetime
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
@@ -176,6 +180,21 @@ def analyze_feature_importance_for_random_forest(model):
     print(df_importance.head(20))
 
 
+def save_models(models):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+
+    BASE_DIR = Path(__file__).resolve().parent
+
+    PROJECT_ROOT = BASE_DIR.parent.parent
+
+    MODELS_DIR = PROJECT_ROOT / "models"
+    MODELS_DIR.mkdir(exist_ok=True)
+
+    os.makedirs("MODELS_DIR/models", exist_ok=True)
+    for model_name in models:
+        joblib.dump(model_name, f"{MODELS_DIR}/{model_name}_{timestamp}.pkl")
+
+
 def main():
     input_path = "data/processed/jobs_processed.parquet"
 
@@ -215,6 +234,8 @@ def main():
         print(f"R2 mean: {cv_results[model_name].mean():.4f}")
 
     analyze_feature_importance_for_random_forest(models["random_forest"])
+
+    save_models(models)
 
 
 if __name__ == "__main__":
