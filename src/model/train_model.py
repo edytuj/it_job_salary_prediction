@@ -192,7 +192,7 @@ def save_models(models):
 
     os.makedirs("MODELS_DIR/models", exist_ok=True)
     for model_name in models:
-        joblib.dump(model_name, f"{MODELS_DIR}/{model_name}_{timestamp}.pkl")
+        joblib.dump(models[model_name], f"{MODELS_DIR}/{model_name}_{timestamp}.pkl")
 
 
 def main():
