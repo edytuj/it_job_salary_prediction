@@ -37,7 +37,7 @@ def clean_company(company):
     company = re.sub(r"\(.*?\)", "", company)
 
     # remove legal form
-    company = re.sub(r"\b(sp\.?\s*z\s*o\.?o\.?|s\.?a\.?)\b", "", company)
+    company = re.sub(r"\b(sp\.?\s*z\s*o\.?o\.?|s\.?a\.?)\.?\s*", "", company)
 
     return company.strip()
 

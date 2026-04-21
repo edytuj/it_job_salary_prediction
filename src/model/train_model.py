@@ -14,6 +14,21 @@ from sklearn.pipeline import Pipeline
 
 from .pipeline import build_preprocessor
 
+ridge_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
+
+rf_grid = {
+    "model__n_estimators": [100, 200],
+    "model__max_depth": [5, 10, 15, None],
+    "model__min_samples_split": [2, 5, 10],
+}
+
+hgb_grid = {
+    "model__max_depth": [3, 5, 10],
+    "model__learning_rate": [0.01, 0.05, 0.1],
+    "model__max_iter": [100, 200],
+    "model__min_samples_leaf": [10, 20, 50],
+}
+
 
 def load_data(path):
     df = pd.read_parquet(path)
@@ -33,7 +48,7 @@ def split_data(X, y):
     return train_test_split(X, y, test_size=0.2, random_state=42)
 
 
-def train_rf_with_grid(preprocessor, X_train, y_train):
+def train_rf_with_grid(preprocessor, X_train, y_train, param_grid=rf_grid, cv=5):
     pipe = Pipeline(
         [
             ("preprocessor", preprocessor),
@@ -41,13 +56,9 @@ def train_rf_with_grid(preprocessor, X_train, y_train):
         ]
     )
 
-    param_grid = {
-        "model__n_estimators": [100, 200],
-        "model__max_depth": [5, 10, 15, None],
-        "model__min_samples_split": [2, 5, 10],
-    }
-
-    grid = GridSearchCV(pipe, param_grid, cv=5, scoring="r2", n_jobs=-1)
+    grid = GridSearchCV(
+        pipe, param_grid, cv=cv, scoring="neg_mean_absolute_error", n_jobs=-1
+    )
 
     grid.fit(X_train, y_train)
 
@@ -56,12 +67,12 @@ def train_rf_with_grid(preprocessor, X_train, y_train):
     return grid.best_estimator_
 
 
-def train_ridge_with_grid(preprocessor, X_train, y_train):
+def train_ridge_with_grid(preprocessor, X_train, y_train, param_grid=ridge_grid, cv=5):
     pipe = Pipeline([("preprocessor", preprocessor), ("model", Ridge())])
 
-    param_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
-
-    grid = GridSearchCV(pipe, param_grid, cv=5, scoring="r2")
+    grid = GridSearchCV(
+        pipe, param_grid, cv=cv, scoring="neg_mean_absolute_error", n_jobs=-1
+    )
 
     grid.fit(X_train, y_train)
 
@@ -70,7 +81,7 @@ def train_ridge_with_grid(preprocessor, X_train, y_train):
     return grid.best_estimator_
 
 
-def train_hgb_with_grid(preprocessor, X_train, y_train):
+def train_hgb_with_grid(preprocessor, X_train, y_train, param_grid=hgb_grid, cv=5):
 
     pipe = Pipeline(
         [
@@ -79,14 +90,9 @@ def train_hgb_with_grid(preprocessor, X_train, y_train):
         ]
     )
 
-    param_grid = {
-        "model__max_depth": [3, 5, 10],
-        "model__learning_rate": [0.01, 0.05, 0.1],
-        "model__max_iter": [100, 200],
-        "model__min_samples_leaf": [10, 20, 50],
-    }
-
-    grid = GridSearchCV(pipe, param_grid, cv=5, scoring="r2", n_jobs=-1)
+    grid = GridSearchCV(
+        pipe, param_grid, cv=cv, scoring="neg_mean_absolute_error", n_jobs=-1
+    )
 
     grid.fit(X_train, y_train)
 

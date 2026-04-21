@@ -11,7 +11,7 @@ def load_latest_model(models_dir, prefix="random_forest"):
     model_files = list(models_dir.glob(f"{prefix}_*.pkl"))
 
     if not model_files:
-        raise FileNotFoundError("No models found")
+        return None
 
     latest_model = sorted(model_files)[-1]
 
@@ -45,6 +45,9 @@ def predict_salary(model, input_df):
 
 def main():
     model_path = load_latest_model(MODELS_DIR, prefix="random_forest")
+    if model_path is None:
+        raise FileNotFoundError("No models found")
+
     model = joblib.load(model_path)
 
     print(f"Loaded model: {model_path}")
