@@ -1,8 +1,8 @@
 import pandas as pd
 import joblib
 from pathlib import Path
-from prediction.predict import load_latest_model
-from utils.paths import MODELS_DIR
+from src.prediction.predict import load_latest_model
+from src.utils.paths import MODELS_DIR
 
 
 def test_predict_output():

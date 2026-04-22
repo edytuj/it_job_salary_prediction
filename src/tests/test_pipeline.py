@@ -4,8 +4,8 @@ import warnings
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestRegressor
 
-from model.pipeline import build_preprocessor
-from model.train_model import train_rf_with_grid
+from src.model.pipeline import build_preprocessor
+from src.model.train_model import train_rf_with_grid
 
 
 def test_preprocessor_runs():

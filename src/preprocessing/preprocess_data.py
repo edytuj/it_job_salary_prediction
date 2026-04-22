@@ -1,8 +1,16 @@
 import pandas as pd
 
-from .cleaning import clean_title, clean_company, clean_city, clean_skills
-from .features import compute_salary_avg, extract_seniority, add_skills_count
-from .encoding import encode_all
+from src.preprocessing.cleaning import (
+    clean_title,
+    clean_company,
+    clean_city,
+    clean_skills,
+)
+from src.preprocessing.features import (
+    compute_salary_avg,
+    extract_seniority,
+    add_skills_count,
+)
 
 RAW_PATH = "data/raw/jobs_raw.csv"
 PROCESSED_PATH = "data/processed/jobs_processed.parquet"

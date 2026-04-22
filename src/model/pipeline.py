@@ -1,6 +1,6 @@
 from sklearn.compose import ColumnTransformer
 
-from preprocessing.transformers import (
+from src.preprocessing.transformers import (
     SeniorityEncoder,
     SkillsTfidfEncoder,
     CityEncoder,

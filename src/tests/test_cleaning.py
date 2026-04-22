@@ -1,5 +1,10 @@
 import pandas as pd
-from preprocessing.cleaning import clean_title, clean_company, clean_city, clean_skills
+from src.preprocessing.cleaning import (
+    clean_title,
+    clean_company,
+    clean_city,
+    clean_skills,
+)
 
 
 class TestCleanTitle:
