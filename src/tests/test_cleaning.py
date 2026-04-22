@@ -1,5 +1,5 @@
 import pandas as pd
-from src.preprocessing.cleaning import (
+from preprocessing.cleaning import (
     clean_title,
     clean_company,
     clean_city,

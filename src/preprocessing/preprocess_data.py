@@ -1,12 +1,12 @@
 import pandas as pd
 
-from src.preprocessing.cleaning import (
+from preprocessing.cleaning import (
     clean_title,
     clean_company,
     clean_city,
     clean_skills,
 )
-from src.preprocessing.features import (
+from preprocessing.features import (
     compute_salary_avg,
     extract_seniority,
     add_skills_count,

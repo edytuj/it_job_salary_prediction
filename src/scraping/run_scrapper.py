@@ -1,4 +1,4 @@
-from src.scrapping.scrapper import fetch_job_listings
+from scrapping.scrapper import fetch_job_listings
 
 url = "https://nofluffjobs.com/pl/jobs?criteria=python"  # exemplary filter
 df = fetch_job_listings(url)

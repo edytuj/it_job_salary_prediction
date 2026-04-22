@@ -12,7 +12,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 
 from sklearn.pipeline import Pipeline
 
-from src.model.pipeline import build_preprocessor
+from model.pipeline import build_preprocessor
 
 ridge_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
 

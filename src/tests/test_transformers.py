@@ -1,5 +1,5 @@
 import pandas as pd
-from src.preprocessing.transformers import (
+from preprocessing.transformers import (
     SeniorityEncoder,
     SkillsTfidfEncoder,
     CityEncoder,

@@ -3,8 +3,8 @@ import time
 
 from bs4 import BeautifulSoup
 
-from src.scraping.parser import parse_job_listings
-from src.scraping.save import save_to_csv
+from scraping.parser import parse_job_listings
+from scraping.save import save_to_csv
 
 BASE_URL = "https://nofluffjobs.com/pl/jobs/backend"
 
