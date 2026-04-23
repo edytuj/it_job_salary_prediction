@@ -17,16 +17,45 @@ def parse_args():
     return parser.parse_args()
 
 
+def parse_skills(skills_str):
+    skills = [s.strip().lower() for s in skills_str.split(",") if s.strip()]
+
+    if not skills:
+        raise ValueError("Skills list cannot be empty")
+
+    return skills
+
+
+def validate_city(city):
+    if not city or not city.strip():
+        raise ValueError("City cannot be empty")
+
+    return city.strip()
+
+
+def validate_seniority(seniority):
+    if not seniority or not seniority.strip():
+        raise ValueError("Seniority cannot be empty")
+
+    if seniority.strip() not in ["junior", "mid", "senior"]:
+        raise ValueError("Seniority must be one of: junior, mid, senior")
+
+    return seniority.strip()
+
+
 def prepare_input(args):
-    skills_list = [s.strip().lower() for s in args.skills.split(",")]
+
+    skills_list = parse_skills(args.skills)
+    city = validate_city(args.city)
+    seniority = validate_seniority(args.seniority)
 
     df = pd.DataFrame(
         [
             {
                 "title_clean": args.title.lower(),
                 "skills_clean": skills_list,
-                "city_clean": args.city,
-                "seniority": args.seniority,
+                "city_clean": city,
+                "seniority": seniority,
                 "skills_count": len(skills_list),
             }
         ]
@@ -36,16 +65,19 @@ def prepare_input(args):
 
 
 def main():
-    args = parse_args()
+    try:
+        args = parse_args()
+        input = prepare_input(args)
 
-    model_path = load_latest_model(Path("models"), prefix="random_forest")
-    model = joblib.load(model_path)
+        model_path = load_latest_model(Path("models"), prefix="random_forest")
+        model = joblib.load(model_path)
 
-    X = prepare_input(args)
+        pred = model.predict(input)[0]
 
-    pred = model.predict(X)[0]
+        print(f"Predicted salary: {round(pred, 2)} PLN")
 
-    print(f"Predicted salary: {round(pred, 2)} PLN")
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":
