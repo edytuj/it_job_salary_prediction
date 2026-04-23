@@ -3,7 +3,11 @@ import pandas as pd
 from pathlib import Path
 import joblib
 
-from prediction.predict import load_latest_model
+from prediction.utils import (
+    predict_with_uncertainty_and_confidence,
+    print_output,
+    load_latest_model,
+)
 
 
 def parse_args():
@@ -72,9 +76,20 @@ def main():
         model_path = load_latest_model(Path("models"), prefix="random_forest")
         model = joblib.load(model_path)
 
-        pred = model.predict(input)[0]
+        mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
+            predict_with_uncertainty_and_confidence(model, input)
+        )
 
-        print(f"Predicted salary: {round(pred, 2)} PLN")
+        print_output(
+            input,
+            mean_pred,
+            low,
+            high,
+            std,
+            confidence_absolute,
+            confidence_relative,
+            method,
+        )
 
     except Exception as e:
         print(f"Error: {e}")

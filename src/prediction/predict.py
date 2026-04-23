@@ -2,20 +2,12 @@ import pandas as pd
 import joblib
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent.parent
-MODELS_DIR = PROJECT_ROOT / "models"
-
-
-def load_latest_model(models_dir, prefix="random_forest"):
-    model_files = list(models_dir.glob(f"{prefix}_*.pkl"))
-
-    if not model_files:
-        return None
-
-    latest_model = sorted(model_files)[-1]
-
-    return latest_model
+from utils.paths import MODELS_DIR
+from prediction.utils import (
+    predict_with_uncertainty_and_confidence,
+    print_output,
+    load_latest_model,
+)
 
 
 def prepare_input(title, skills, city, seniority):
@@ -38,11 +30,6 @@ def prepare_input(title, skills, city, seniority):
     )
 
 
-def predict_salary(model, input_df):
-    prediction = model.predict(input_df)[0]
-    return prediction
-
-
 def main():
     model_path = load_latest_model(MODELS_DIR, prefix="random_forest")
     if model_path is None:
@@ -59,14 +46,20 @@ def main():
         seniority="mid",
     )
 
-    prediction = predict_salary(model, input_df)
+    mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
+        predict_with_uncertainty_and_confidence(model, input_df)
+    )
 
-    print(f"""\n For offer with the following parameters:
- title = {input_df.at[0, "title_clean"]},
- skills = {input_df.at[0, "skills_clean"]},
- city = {input_df.at[0, "city_clean"]}.title(),
- seniority = {input_df.at[0, "seniority"]}
- predicted salary is {prediction:.2f} PLN""")
+    print_output(
+        input_df,
+        mean_pred,
+        low,
+        high,
+        std,
+        confidence_absolute,
+        confidence_relative,
+        method,
+    )
 
 
 if __name__ == "__main__":
