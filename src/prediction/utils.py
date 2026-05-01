@@ -1,5 +1,7 @@
 import numpy as np
 
+from utils.utils import format_salary
+
 
 def load_latest_model(models_dir, prefix="random_forest"):
     model_files = list(models_dir.glob(f"{prefix}_*.pkl"))
@@ -118,21 +120,27 @@ def print_output(
     method,
 ):
 
-    print(f"""\n For offer with the following parameters:
+    print("\n" + "-" * 50 + "\n")
+
+    print(f"""For offer with the following parameters:
  \ttitle\t\t= {input_df.at[0, "title_clean"]},
  \tskills\t\t= {input_df.at[0, "skills_clean"]},
  \tcity\t\t= {input_df.at[0, "city_clean"]}.title(),
  \tseniority\t= {input_df.at[0, "seniority"]}\n
- -> Predicted salary:\t{mean_pred:.2f} PLN.\n
- -> Estimated range:\t{low:.0f} – {high:.0f} PLN.
- -> Uncertainty (std):\t±{std:.0f} PLN.""")
+-> Predicted salary:\t{format_salary(mean_pred)}.\n
+-> Estimated range:\t{format_salary(low)} – {format_salary(high)} PLN.
+-> Uncertainty (std):\t± {format_salary(std)} PLN.""")
+
+    print("\nConfidence estimation:")
 
     if method == "rf_variance":
-        print("\nConfidence method: model-based (Random Forest variance)\n")
+        print("-> Method: model-based (Random Forest variance)")
     else:
-        print("\nConfidence method: fallback (based on average error)\n")
+        print("-> Method: fallback (based on average error)")
 
-    print(f"Confidence (based on spread):\t\t{confidence_based_on_spread}")
+    print(f"-> Absolute (based on spread):\t\t\t{confidence_based_on_spread}")
     print(
-        f"Confidence (based on relative uncertainty): {confidence_based_on_relative_uncertainty}"
+        f"-> Relative (based on relative uncertainty):\t{confidence_based_on_relative_uncertainty}"
     )
+
+    print("\n" + "-" * 50 + "\n")
