@@ -1,7 +1,9 @@
 import joblib
 import pandas as pd
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from pathlib import Path
 from enum import Enum
@@ -68,27 +70,50 @@ def health():
     return {"status": "ok"}
 
 
+def get_dummy_input():
+    return pd.DataFrame(
+        [
+            {
+                "title_clean": "python developer",
+                "skills_clean": ["python"],
+                "city_clean": "Warszawa",
+                "seniority": "mid",
+                "skills_count": 1,
+            }
+        ]
+    )
+
+
 @app.get("/ready")
 def ready():
     try:
-        model = get_model()
+        start_time = time.perf_counter()
 
-        # dummy input
-        X = pd.DataFrame(
-            [
-                {
-                    "title_clean": "python developer",
-                    "skills_clean": ["python"],
-                    "city_clean": "Warszawa",
-                    "seniority": "mid",
-                    "skills_count": 1,
-                }
-            ]
-        )
+        model = get_model()
+        X = get_dummy_input()
 
         _ = model.predict(X)
 
-        return {"status": "ready", "model_loaded": True, "prediction_test": "ok"}
+        cold_run_duration_ms = (time.perf_counter() - start_time) * 1000
+
+        start_time = time.perf_counter()
+
+        _ = model.predict(X)
+
+        warm_run_duration_ms = (time.perf_counter() - start_time) * 1000
+
+        if warm_run_duration_ms > 100:
+            status_value = "degraded"
+        else:
+            status_value = "ready"
+
+        return {
+            "status": status_value,
+            "model_loaded": True,
+            "prediction_test": "ok",
+            "cold_run_duration_ms": round(cold_run_duration_ms, 2),
+            "warm_run_duration_ms": round(warm_run_duration_ms, 2),
+        }
 
     except Exception as e:
         return {"status": "not_ready", "error": str(e)}
