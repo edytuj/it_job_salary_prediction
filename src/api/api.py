@@ -1,8 +1,10 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from pathlib import Path
 import joblib
 import pandas as pd
+
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
+from pathlib import Path
+from enum import Enum
 
 from prediction.predict import load_latest_model
 from prediction.utils import predict_with_uncertainty_and_confidence
@@ -11,11 +13,19 @@ from utils.utils import format_salary
 app = FastAPI(title="Salary Prediction API")
 
 
+class Seniority(str, Enum):
+    junior = "junior"
+    mid = "mid"
+    senior = "senior"
+
+
 class PredictionRequest(BaseModel):
-    title: str
-    skills: list[str]
-    city: str
-    seniority: str
+    title: str = Field(min_length=3, description="Job title")
+    skills: list[str] = Field(
+        min_items=1, description="List of skills, at least one skill is required"
+    )
+    city: str = Field(min_length=2, description="City name")
+    seniority: Seniority
 
 
 model_path = load_latest_model(Path("models"), prefix="hgb")
