@@ -29,10 +29,6 @@ class PredictionRequest(BaseModel):
     seniority: Seniority
 
 
-model_path = load_latest_model(Path("models"), prefix="hgb")
-model = joblib.load(model_path)
-
-
 def prepare_input(data: PredictionRequest):
     return pd.DataFrame(
         [
@@ -49,6 +45,8 @@ def prepare_input(data: PredictionRequest):
 
 @app.post("/predict")
 def predict(data: PredictionRequest):
+    model = get_model()
+
     X = prepare_input(data)
 
     mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
