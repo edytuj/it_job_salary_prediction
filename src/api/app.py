@@ -2,13 +2,11 @@ import joblib
 import pandas as pd
 import time
 
-from fastapi import FastAPI, status
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from pathlib import Path
 from enum import Enum
 
-from prediction.predict import load_latest_model
 from prediction.utils import predict_with_uncertainty_and_confidence
 from utils.utils import format_salary
 from api.model_loader import get_model
@@ -64,9 +62,7 @@ def predict(data: PredictionRequest):
             "method": method,
         }
     except Exception as e:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"error": str(e)}
-        )
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/health", status_code=200)
@@ -120,7 +116,4 @@ def ready():
         }
 
     except Exception as e:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"status": "not_ready", "error": str(e)},
-        )
+        raise HTTPException(status_code=500, detail=str(e))
