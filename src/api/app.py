@@ -47,25 +47,29 @@ def prepare_input(data: PredictionRequest):
 
 @app.post("/predict")
 def predict(data: PredictionRequest):
-    model = get_model()
+    try:
+        model = get_model()
+        X = prepare_input(data)
 
-    X = prepare_input(data)
+        mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
+            predict_with_uncertainty_and_confidence(model, X)
+        )
 
-    mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
-        predict_with_uncertainty_and_confidence(model, X)
-    )
+        return {
+            "prediction": format_salary(mean_pred),
+            "range": [format_salary(low), format_salary(high)],
+            "uncertainty": format_salary(std),
+            "confidence_absolute": confidence_absolute,
+            "confidence_relative": confidence_relative,
+            "method": method,
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"error": str(e)}
+        )
 
-    return {
-        "prediction": format_salary(mean_pred),
-        "range": [format_salary(low), format_salary(high)],
-        "uncertainty": format_salary(std),
-        "confidence_absolute": confidence_absolute,
-        "confidence_relative": confidence_relative,
-        "method": method,
-    }
 
-
-@app.get("/health")
+@app.get("/health", status_code=200)
 def health():
     return {"status": "ok"}
 
@@ -116,4 +120,7 @@ def ready():
         }
 
     except Exception as e:
-        return {"status": "not_ready", "error": str(e)}
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"status": "not_ready", "error": str(e)},
+        )
