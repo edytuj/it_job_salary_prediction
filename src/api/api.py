@@ -9,6 +9,7 @@ from enum import Enum
 from prediction.predict import load_latest_model
 from prediction.utils import predict_with_uncertainty_and_confidence
 from utils.utils import format_salary
+from api.model_loader import get_model
 
 app = FastAPI(title="Salary Prediction API")
 
@@ -62,3 +63,34 @@ def predict(data: PredictionRequest):
         "confidence_relative": confidence_relative,
         "method": method,
     }
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    try:
+        model = get_model()
+
+        # dummy input
+        X = pd.DataFrame(
+            [
+                {
+                    "title_clean": "python developer",
+                    "skills_clean": ["python"],
+                    "city_clean": "Warszawa",
+                    "seniority": "mid",
+                    "skills_count": 1,
+                }
+            ]
+        )
+
+        _ = model.predict(X)
+
+        return {"status": "ready", "model_loaded": True, "prediction_test": "ok"}
+
+    except Exception as e:
+        return {"status": "not_ready", "error": str(e)}
