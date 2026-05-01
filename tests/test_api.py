@@ -1,3 +1,5 @@
+import pytest
+
 from fastapi.testclient import TestClient
 from src.api.app import app
 
@@ -9,112 +11,123 @@ class FakeModel:
         return [20000]
 
 
-def fake_get_model():
-    return FakeModel()
+# Fixture to mock get_model and predict_with_uncertainty_and_confidence
 
 
-def fake_predict_with_uncertainty(model, X):
-    return (
-        20000,  # mean
-        18000,  # low
-        22000,  # high
-        1000,  # std
-        "high",
-        "low",
-        "mock",
-    )
+@pytest.fixture
+def client(monkeypatch):
+    def fake_get_model():
+        return FakeModel()
 
+    def fake_predict_with_uncertainty(model, X):
+        return (
+            20000,  # mean
+            18000,  # low
+            22000,  # high
+            1000,  # std
+            "high",  # confidence_absolute
+            "low",  # confidence_relative
+            "mock",  # method
+        )
 
-def test_health():
-    response = client.get("/health")
-
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
-
-
-def test_predict_valid_input(monkeypatch):
     monkeypatch.setattr("src.api.app.get_model", fake_get_model)
     monkeypatch.setattr(
         "src.api.app.predict_with_uncertainty_and_confidence",
         fake_predict_with_uncertainty,
     )
 
-    payload = {
-        "title": "python developer",
-        "skills": ["python", "aws"],
-        "city": "Warszawa",
-        "seniority": "mid",
-    }
+    return TestClient(app)
 
-    response = client.post("/predict", json=payload)
+
+# Test data
+
+VALID_PAYLOAD = {
+    "title": "python developer",
+    "skills": ["python", "aws"],
+    "city": "Warszawa",
+    "seniority": "mid",
+}
+
+
+INVALID_SENIORITY_PAYLOAD = {
+    "title": "python developer",
+    "skills": ["python", "aws"],
+    "city": "Warszawa",
+    "seniority": "aaa",
+}
+
+
+EMPTY_SKILLS_PAYLOAD = {
+    "title": "python developer",
+    "skills": [],
+    "city": "Warszawa",
+    "seniority": "mid",
+}
+
+INVALID_TITLE_PAYLOAD = {
+    "title": "p",
+    "skills": ["python", "aws"],
+    "city": "Warszawa",
+    "seniority": "mid",
+}
+
+INVALID_CITY_PAYLOAD = {
+    "title": "python developer",
+    "skills": ["python", "aws"],
+    "city": "W",
+    "seniority": "mid",
+}
+
+# Tests
+
+
+def test_health(client):
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
+def test_predict_valid_input(client):
+    response = client.post("/predict", json=VALID_PAYLOAD)
 
     assert response.status_code == 200
 
     data = response.json()
 
-    assert "prediction" in data
-    assert "range" in data
-    assert "uncertainty" in data
-    assert "confidence_absolute" in data
-    assert "confidence_relative" in data
+    assert data["prediction"] == "20 000 PLN"
+    assert data["range"] == ["18 000 PLN", "22 000 PLN"]
+    assert data["uncertainty"] == "1 000 PLN"
+    assert data["confidence_absolute"] == "high"
+    assert data["confidence_relative"] == "low"
+    assert data["method"] == "mock"
 
 
-def test_predict_invalid_seniority(monkeypatch):
-    monkeypatch.setattr("src.api.app.get_model", fake_get_model)
-
-    payload = {
-        "title": "python developer",
-        "skills": ["python"],
-        "city": "Warszawa",
-        "seniority": "juniorr",
-    }
-
-    response = client.post("/predict", json=payload)
+def test_predict_invalid_seniority(client):
+    response = client.post("/predict", json=INVALID_SENIORITY_PAYLOAD)
 
     assert response.status_code == 422
 
 
-def test_predict_empty_skills(monkeypatch):
-    monkeypatch.setattr("src.api.app.get_model", fake_get_model)
-
-    payload = {
-        "title": "python developer",
-        "skills": [],
-        "city": "Warszawa",
-        "seniority": "mid",
-    }
-
-    response = client.post("/predict", json=payload)
+def test_predict_empty_skills(client):
+    response = client.post("/predict", json=EMPTY_SKILLS_PAYLOAD)
 
     assert response.status_code == 422
 
 
-def test_predict_invalid_title(monkeypatch):
-    monkeypatch.setattr("src.api.app.get_model", fake_get_model)
-    payload = {"title": "p", "skills": [], "city": "Warszawa", "seniority": "mid"}
-
-    response = client.post("/predict", json=payload)
+def test_predict_invalid_title(client):
+    response = client.post("/predict", json=INVALID_TITLE_PAYLOAD)
 
     assert response.status_code == 422
 
 
-def test_predict_invalid_city(monkeypatch):
-    monkeypatch.setattr("src.api.app.get_model", fake_get_model)
-    payload = {
-        "title": "python developer",
-        "skills": [],
-        "city": "W",
-        "seniority": "mid",
-    }
-
-    response = client.post("/predict", json=payload)
+def test_predict_invalid_city(client):
+    response = client.post("/predict", json=INVALID_CITY_PAYLOAD)
 
     assert response.status_code == 422
 
 
-def test_ready(monkeypatch):
-    monkeypatch.setattr("src.api.app.get_model", fake_get_model)
-
+def test_ready(client):
     response = client.get("/ready")
 
     assert response.status_code in [200, 503]
