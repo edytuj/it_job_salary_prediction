@@ -46,11 +46,11 @@ def prepare_input(data: PredictionRequest):
 @app.post("/predict")
 def predict(data: PredictionRequest):
     try:
-        model = get_model()
+        model, mae = get_model()
         X = prepare_input(data)
 
         mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
-            predict_with_uncertainty_and_confidence(model, X)
+            predict_with_uncertainty_and_confidence(model, X, fallback_error=mae)
         )
 
         return {
@@ -89,7 +89,7 @@ def ready():
     try:
         start_time = time.perf_counter()
 
-        model = get_model()
+        model, _ = get_model()
         X = get_dummy_input()
 
         _ = model.predict(X)

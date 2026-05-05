@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 import pandas as pd
 
-from api.model_loader import get_model
+from model.model_loader import get_model
 from utils.paths import BENCHMARK_FILE
 
 OUTPUT_FILE = BENCHMARK_FILE
@@ -36,13 +36,13 @@ def benchmark(n_runs=20, warmup_runs=5):
 
     # cold start
     def cold():
-        model = get_model()
+        model, mae = get_model()
         model.predict(X)
 
     cold_time = measure(cold)
 
     # warm start
-    model = get_model()
+    model, mae = get_model()
 
     # warmup (CPU/cache stabilization)
     for _ in range(warmup_runs):

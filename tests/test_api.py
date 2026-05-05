@@ -17,9 +17,9 @@ class FakeModel:
 @pytest.fixture
 def client(monkeypatch):
     def fake_get_model():
-        return FakeModel()
+        return FakeModel(), 1000
 
-    def fake_predict_with_uncertainty(model, X):
+    def fake_predict_with_uncertainty(model, X, fallback_error):
         return (
             20000,  # mean
             18000,  # low
@@ -48,14 +48,12 @@ VALID_PAYLOAD = {
     "seniority": "mid",
 }
 
-
 INVALID_SENIORITY_PAYLOAD = {
     "title": "python developer",
     "skills": ["python", "aws"],
     "city": "Warszawa",
     "seniority": "aaa",
 }
-
 
 EMPTY_SKILLS_PAYLOAD = {
     "title": "python developer",

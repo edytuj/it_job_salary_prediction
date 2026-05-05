@@ -1,17 +1,11 @@
 import pandas as pd
 import joblib
 from pathlib import Path
-from prediction.predict import load_latest_model
-from utils.paths import MODELS_DIR
+from model.model_loader import get_model
 
 
 def test_predict_output():
-    model_path = load_latest_model(MODELS_DIR, prefix="random_forest")
-
-    if not model_path:
-        return
-
-    model = joblib.load(model_path)
+    model, _ = get_model()
 
     df = pd.DataFrame(
         [

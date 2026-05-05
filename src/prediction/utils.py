@@ -2,16 +2,7 @@ import numpy as np
 
 from utils.utils import format_salary
 
-
-def load_latest_model(models_dir, prefix="random_forest"):
-    model_files = list(models_dir.glob(f"{prefix}_*.pkl"))
-
-    if not model_files:
-        return None
-
-    latest_model = sorted(model_files)[-1]
-
-    return latest_model
+MIN_ERROR = 1000  # minimum error to avoid misleading confidence estimation when fallback_error is 0
 
 
 def calculate_spread(low, high):
@@ -54,13 +45,19 @@ def calculate_relative_confidence(
     return confidence
 
 
-def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error=4000):
+def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
     """
     Predict with uncertainty for different model types.
 
     Returns:
         mean_pred, low, high, std, method
     """
+
+    if fallback_error == 0:
+        print(
+            "Warning: fallback_error is 0 — setting it to minimum value ({MIN_ERROR}) to avoid misleading confidence estimation."
+        )
+    fallback_error = max(fallback_error, MIN_ERROR)
 
     preprocessor = pipeline.named_steps["preprocessor"]
     model = pipeline.named_steps["model"]

@@ -186,7 +186,7 @@ def analyze_feature_importance_for_random_forest(model):
     print(df_importance.head(20))
 
 
-def save_models(models):
+def save_models(models, baseline_mae):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
 
     BASE_DIR = Path(__file__).resolve().parent
@@ -198,7 +198,10 @@ def save_models(models):
 
     os.makedirs("MODELS_DIR/models", exist_ok=True)
     for model_name in models:
-        joblib.dump(models[model_name], f"{MODELS_DIR}/{model_name}_{timestamp}.pkl")
+        joblib.dump(
+            {"model": models[model_name], "mae": baseline_mae},
+            f"{MODELS_DIR}/{model_name}_{timestamp}.pkl",
+        )
 
 
 def main():
@@ -241,7 +244,7 @@ def main():
 
     analyze_feature_importance_for_random_forest(models["random_forest"])
 
-    save_models(models)
+    save_models(models, baseline_mae)
 
 
 if __name__ == "__main__":

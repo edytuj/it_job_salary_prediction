@@ -26,7 +26,7 @@ def prepare_input(title, skills, city, seniority):
 def main():
     from src.model.model_loader import get_model
 
-    model = get_model()
+    model, mae = get_model()
 
     input_df = prepare_input(
         title="python developer",
@@ -36,7 +36,7 @@ def main():
     )
 
     mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
-        predict_with_uncertainty_and_confidence(model, input_df)
+        predict_with_uncertainty_and_confidence(model, input_df, fallback_error=mae)
     )
 
     print_output(

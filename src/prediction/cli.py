@@ -4,11 +4,7 @@ from pathlib import Path
 
 from model.model_loader import get_model
 
-from prediction.utils import (
-    predict_with_uncertainty_and_confidence,
-    print_output,
-    load_latest_model,
-)
+from prediction.utils import predict_with_uncertainty_and_confidence, print_output
 
 
 def parse_args():
@@ -74,10 +70,10 @@ def main():
         args = parse_args()
         input = prepare_input(args)
 
-        model = get_model()
+        model, mae = get_model()
 
         mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
-            predict_with_uncertainty_and_confidence(model, input)
+            predict_with_uncertainty_and_confidence(model, input, fallback_error=mae)
         )
 
         print_output(
