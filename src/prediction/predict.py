@@ -1,13 +1,6 @@
 import pandas as pd
-import joblib
-from pathlib import Path
 
-from utils.paths import MODELS_DIR
-from prediction.utils import (
-    predict_with_uncertainty_and_confidence,
-    print_output,
-    load_latest_model,
-)
+from prediction.utils import predict_with_uncertainty_and_confidence, print_output
 
 
 def prepare_input(title, skills, city, seniority):
@@ -31,13 +24,9 @@ def prepare_input(title, skills, city, seniority):
 
 
 def main():
-    model_path = load_latest_model(MODELS_DIR, prefix="random_forest")
-    if model_path is None:
-        raise FileNotFoundError("No models found")
+    from src.model.model_loader import get_model
 
-    model = joblib.load(model_path)
-
-    print(f"Loaded model: {model_path}")
+    model = get_model()
 
     input_df = prepare_input(
         title="python developer",

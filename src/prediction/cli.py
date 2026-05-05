@@ -1,7 +1,8 @@
 import argparse
 import pandas as pd
 from pathlib import Path
-import joblib
+
+from model.model_loader import get_model
 
 from prediction.utils import (
     predict_with_uncertainty_and_confidence,
@@ -73,8 +74,7 @@ def main():
         args = parse_args()
         input = prepare_input(args)
 
-        model_path = load_latest_model(Path("models"), prefix="random_forest")
-        model = joblib.load(model_path)
+        model = get_model()
 
         mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
             predict_with_uncertainty_and_confidence(model, input)

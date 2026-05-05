@@ -9,7 +9,7 @@ from enum import Enum
 
 from prediction.utils import predict_with_uncertainty_and_confidence
 from utils.utils import format_salary
-from api.model_loader import get_model
+from model.model_loader import get_model
 
 app = FastAPI(title="Salary Prediction API")
 
