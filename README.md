@@ -76,6 +76,17 @@ This allows you to:
 - import project modules without modifying PYTHONPATH
 - develop the project without reinstalling after changes
 
+
+## Docker
+1. Build image:
+```bash
+docker build -t salary-api .
+```
+2. Run container:
+```bash
+docker run -p 8000:8000 salary-api
+```
+
 ## Usage
 
 The project exposes three ways to interact with the model:
