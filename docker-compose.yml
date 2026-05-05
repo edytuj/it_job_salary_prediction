@@ -1,5 +1,20 @@
+version: "3.9"
+
 services:
   api:
     build: .
+    container_name: salary-api
     ports:
       - "8000:8000"
+
+  ui:
+    build: .
+    container_name: salary-ui
+    command: streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    environment:
+      - API_URL=http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+  

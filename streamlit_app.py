@@ -1,11 +1,12 @@
 import streamlit as st
 import requests
+import os
 
-API_URL = "http://localhost:8000/predict"
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Salary Predictor", layout="centered")
 
-st.title("IT Salary Predictor")
+st.title(f"IT Salary Predictor")
 
 st.write("Enter job details to estimate salary.")
 
@@ -37,7 +38,7 @@ if st.button("Predict salary"):
         }
 
         try:
-            response = requests.post(API_URL, json=payload)
+            response = requests.post(f"{API_URL}/predict", json=payload)
 
             if response.status_code == 200:
                 data = response.json()
