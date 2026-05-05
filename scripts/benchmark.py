@@ -6,8 +6,9 @@ from pathlib import Path
 import pandas as pd
 
 from api.model_loader import get_model
+from utils.paths import BENCHMARK_FILE
 
-OUTPUT_FILE = Path("benchmark_results.csv")
+OUTPUT_FILE = BENCHMARK_FILE
 
 
 def get_dummy_input():
