@@ -78,13 +78,30 @@ This allows you to:
 
 
 ## Docker
-1. Build image:
+- Option 1: using dokcer-compose (recommended)
+```bash
+docker-compose up --build
+```
+
+- Option 2: manual Docker commands
+
+Build image:
 ```bash
 docker build -t salary-api .
 ```
-2. Run container:
+Run container:
 ```bash
 docker run -p 8000:8000 salary-api
+```
+
+## Using Makefile
+Build docker image
+```bash
+make build
+```
+Run container
+```bash
+make run
 ```
 
 ## Usage
