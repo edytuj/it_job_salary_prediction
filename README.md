@@ -78,6 +78,7 @@ This allows you to:
 
 
 ## Docker
+
 - Option 1: using dokcer-compose (recommended)
 ```bash
 docker-compose up --build
@@ -87,11 +88,20 @@ docker-compose up --build
 
 Build image:
 ```bash
-docker build -t salary-api .
+docker build -t salary-app .
 ```
 Run container:
 ```bash
-docker run -p 8000:8000 salary-api
+docker run -d -p 8000:8000 --name api salary-app
+```
+
+Run UI:
+```bash
+docker run -d -p 8501:8501 \
+  -e API_URL=http://host.docker.internal:8000 \
+  --name ui \
+  salary-app \
+  streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
 ```
 
 ## Using Makefile
@@ -159,6 +169,15 @@ streamlit run streamlit_app.py
 
 Then open:
 http://localhost:8501
+
+Make sure the API is running before starting the UI.
+
+The API endpoint is configured via environment variable
+```bash
+API_URL=http://api:8000
+```
+In Docker: uses service name (api)
+Locally: defaults to http://localhost:8000
 
 4. Benchmark
 
