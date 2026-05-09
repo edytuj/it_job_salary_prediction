@@ -102,18 +102,22 @@ def ready():
 
         warm_run_duration_ms = (time.perf_counter() - start_time) * 1000
 
-        if warm_run_duration_ms > 100:
-            status_value = "degraded"
-        else:
-            status_value = "ready"
-
-        return {
-            "status": status_value,
+        response = {
             "model_loaded": True,
             "prediction_test": "ok",
             "cold_run_duration_ms": round(cold_run_duration_ms, 2),
             "warm_run_duration_ms": round(warm_run_duration_ms, 2),
         }
 
+        if warm_run_duration_ms > 100:
+            response["status"] = "degraded"
+
+            raise HTTPException(status_code=503, detail=response)
+
+        response["status"] = "ready"
+
+        return response
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
