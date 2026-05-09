@@ -6,7 +6,8 @@ import os
 
 def setup_logging():
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
-    log_dir = Path("logs")
+    log_dir = Path(os.getenv("LOG_DIR", "logs"))
+
     log_dir.mkdir(exist_ok=True)
 
     formatter = logging.Formatter(
