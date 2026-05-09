@@ -1,8 +1,12 @@
+import logging
+
 import numpy as np
 
 from utils.utils import format_salary
 
 MIN_ERROR = 1000  # minimum error to avoid misleading confidence estimation when fallback_error is 0
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_spread(low, high):
@@ -24,7 +28,7 @@ def calculate_absolute_confidence(low, high, error_margin, error_margin_factor=2
 
 def calculate_relative_uncertainty(mean_pred, std):
     if mean_pred < 1:
-        print(
+        logger.warning(
             "Warning: mean prediction is very low, to avoid misleading value, uncertainty == std."
         )
     return std / max(mean_pred, 1)
@@ -52,10 +56,13 @@ def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
     Returns:
         mean_pred, low, high, std, method
     """
+    logger.info("Starting prediction with uncertainty and confidence calculation.")
 
     if fallback_error == 0:
-        print(
-            "Warning: fallback_error is 0 — setting it to minimum value ({MIN_ERROR}) to avoid misleading confidence estimation."
+        logger.warning(
+            "Warning: fallback_error is 0 — setting it to minimum value ({}) to avoid misleading confidence estimation.".format(
+                MIN_ERROR
+            )
         )
     fallback_error = max(fallback_error, MIN_ERROR)
 
@@ -63,6 +70,7 @@ def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
     model = pipeline.named_steps["model"]
 
     X_transformed = preprocessor.transform(X)
+    logger.debug("Data transformed using preprocessor.")
 
     # for random forest
     if hasattr(model, "estimators_"):
@@ -77,6 +85,7 @@ def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
         high = mean_pred + 1.96 * std
 
         method = "rf_variance"
+        logger.info("Using Random Forest variance method for uncertainty.")
 
     # for other models
     else:
@@ -87,12 +96,19 @@ def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
         high = mean_pred + fallback_error
 
         method = "fallback_error"
+        logger.info("Using fallback error method for uncertainty.")
 
     confidence_based_on_spread = calculate_absolute_confidence(
         low, high, fallback_error
     )
     confidence_based_on_relative_uncertainty = calculate_relative_confidence(
         mean_pred, std
+    )
+
+    logger.info(
+        "Prediction completed: mean_pred={}, low={}, high={}, std={}, method={}".format(
+            mean_pred, low, high, std, method
+        )
     )
 
     return (
@@ -116,6 +132,8 @@ def print_output(
     confidence_based_on_relative_uncertainty,
     method,
 ):
+
+    logger.info("Printing prediction output.")
 
     print("\n" + "-" * 50 + "\n")
 

@@ -1,10 +1,13 @@
 import argparse
+import logging
 import pandas as pd
 from pathlib import Path
 
 from model.model_loader import get_model
 
 from prediction.utils import predict_with_uncertainty_and_confidence, print_output
+
+from src.utils.logging_config import setup_logging
 
 
 def parse_args():
@@ -66,6 +69,9 @@ def prepare_input(args):
 
 
 def main():
+
+    setup_logging()
+
     try:
         args = parse_args()
         input = prepare_input(args)

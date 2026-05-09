@@ -1,6 +1,6 @@
-import joblib
 import pandas as pd
 import time
+import logging
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -12,6 +12,13 @@ from prediction.utils import predict_with_uncertainty_and_confidence
 from utils.utils import format_salary
 from model.model_loader import get_model
 
+
+from utils.logging_config import setup_logging
+
+setup_logging()
+
+logger = logging.getLogger(__name__)
+
 app = FastAPI(title="Salary Prediction API")
 
 
@@ -21,6 +28,7 @@ class ModelNotReadyError(Exception):
 
 @app.exception_handler(ModelNotReadyError)
 async def model_not_ready_handler(request: Request, exc: ModelNotReadyError):
+    logger.error(f"Model not ready: {exc}")
     return JSONResponse(
         status_code=503,
         content={"status": "degraded", "detail": str(exc)},
@@ -29,6 +37,7 @@ async def model_not_ready_handler(request: Request, exc: ModelNotReadyError):
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=500,
         content={"status": "error", "detail": "Internal server error"},
@@ -51,6 +60,7 @@ class PredictionRequest(BaseModel):
 
 
 def prepare_input(data: PredictionRequest):
+    logger.info("Preparing input data for prediction")
     return pd.DataFrame(
         [
             {
@@ -66,12 +76,16 @@ def prepare_input(data: PredictionRequest):
 
 @app.post("/predict")
 def predict(data: PredictionRequest):
+    logger.info("Prediction request received")
     model, mae = get_model()
+    logger.info("Model loaded successfully")
     X = prepare_input(data)
+    logger.info("Input data prepared")
 
     mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
         predict_with_uncertainty_and_confidence(model, X, fallback_error=mae)
     )
+    logger.info("Prediction with uncertainty completed")
 
     return {
         "prediction": format_salary(mean_pred),
@@ -85,10 +99,12 @@ def predict(data: PredictionRequest):
 
 @app.get("/health", status_code=200)
 def health():
+    logger.info("Health check requested")
     return {"status": "ok"}
 
 
 def get_dummy_input():
+    logger.debug("Generating dummy input for readiness check")
     return pd.DataFrame(
         [
             {
@@ -103,6 +119,7 @@ def get_dummy_input():
 
 
 def check_readiness(model, X, threshold_ms=100):
+    logger.info("Starting readiness check")
     start_time = time.perf_counter()
     model.predict(X)
     cold_ms = (time.perf_counter() - start_time) * 1000
@@ -112,6 +129,9 @@ def check_readiness(model, X, threshold_ms=100):
     warm_ms = (time.perf_counter() - start_time) * 1000
 
     status = "ready" if warm_ms <= threshold_ms else "degraded"
+    logger.info(
+        f"Readiness check completed: status={status}, cold_run={cold_ms:.2f}ms, warm_run={warm_ms:.2f}ms"
+    )
 
     return {
         "status": status,
@@ -122,6 +142,7 @@ def check_readiness(model, X, threshold_ms=100):
 
 @app.get("/ready")
 def ready():
+    logger.info("Readiness check requested")
     try:
         model, _ = get_model()
         X = get_dummy_input()
@@ -129,11 +150,14 @@ def ready():
         result = check_readiness(model, X)
 
         if result["status"] == "degraded":
+            logger.warning("Model readiness degraded")
             raise HTTPException(status_code=503, detail=result)
 
+        logger.info("Model is ready")
         return result
 
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error during readiness check: {e}")
         raise HTTPException(status_code=500, detail=str(e))
