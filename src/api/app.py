@@ -84,39 +84,37 @@ def get_dummy_input():
     )
 
 
+def check_readiness(model, X, threshold_ms=100):
+    start_time = time.perf_counter()
+    model.predict(X)
+    cold_ms = (time.perf_counter() - start_time) * 1000
+
+    start_time = time.perf_counter()
+    model.predict(X)
+    warm_ms = (time.perf_counter() - start_time) * 1000
+
+    status = "ready" if warm_ms <= threshold_ms else "degraded"
+
+    return {
+        "status": status,
+        "cold_run_duration_ms": round(cold_ms, 2),
+        "warm_run_duration_ms": round(warm_ms, 2),
+    }
+
+
 @app.get("/ready")
 def ready():
     try:
-        start_time = time.perf_counter()
-
         model, _ = get_model()
         X = get_dummy_input()
 
-        _ = model.predict(X)
+        result = check_readiness(model, X)
 
-        cold_run_duration_ms = (time.perf_counter() - start_time) * 1000
+        if result["status"] == "degraded":
+            raise HTTPException(status_code=503, detail=result)
 
-        start_time = time.perf_counter()
+        return result
 
-        _ = model.predict(X)
-
-        warm_run_duration_ms = (time.perf_counter() - start_time) * 1000
-
-        response = {
-            "model_loaded": True,
-            "prediction_test": "ok",
-            "cold_run_duration_ms": round(cold_run_duration_ms, 2),
-            "warm_run_duration_ms": round(warm_run_duration_ms, 2),
-        }
-
-        if warm_run_duration_ms > 100:
-            response["status"] = "degraded"
-
-            raise HTTPException(status_code=503, detail=response)
-
-        response["status"] = "ready"
-
-        return response
     except HTTPException:
         raise
     except Exception as e:
