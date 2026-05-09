@@ -2,7 +2,8 @@ import joblib
 import pandas as pd
 import time
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from pathlib import Path
 from enum import Enum
@@ -12,6 +13,26 @@ from utils.utils import format_salary
 from model.model_loader import get_model
 
 app = FastAPI(title="Salary Prediction API")
+
+
+class ModelNotReadyError(Exception):
+    pass
+
+
+@app.exception_handler(ModelNotReadyError)
+async def model_not_ready_handler(request: Request, exc: ModelNotReadyError):
+    return JSONResponse(
+        status_code=503,
+        content={"status": "degraded", "detail": str(exc)},
+    )
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"status": "error", "detail": "Internal server error"},
+    )
 
 
 class Seniority(str, Enum):
@@ -45,24 +66,21 @@ def prepare_input(data: PredictionRequest):
 
 @app.post("/predict")
 def predict(data: PredictionRequest):
-    try:
-        model, mae = get_model()
-        X = prepare_input(data)
+    model, mae = get_model()
+    X = prepare_input(data)
 
-        mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
-            predict_with_uncertainty_and_confidence(model, X, fallback_error=mae)
-        )
+    mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
+        predict_with_uncertainty_and_confidence(model, X, fallback_error=mae)
+    )
 
-        return {
-            "prediction": format_salary(mean_pred),
-            "range": [format_salary(low), format_salary(high)],
-            "uncertainty": format_salary(std),
-            "confidence_absolute": confidence_absolute,
-            "confidence_relative": confidence_relative,
-            "method": method,
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return {
+        "prediction": format_salary(mean_pred),
+        "range": [format_salary(low), format_salary(high)],
+        "uncertainty": format_salary(std),
+        "confidence_absolute": confidence_absolute,
+        "confidence_relative": confidence_relative,
+        "method": method,
+    }
 
 
 @app.get("/health", status_code=200)
