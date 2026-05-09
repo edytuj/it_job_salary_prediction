@@ -10,7 +10,25 @@ authors = [
     { name = "Agnieszka Zambrzycka" }
 ]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi==0.136.0",
+    "uvicorn==0.46.0",
+    "pandas==2.2.3",
+    "numpy==2.4.3",
+    "scikit-learn==1.8.0",
+    "streamlit==1.50.0",
+    "requests==2.32.5",
+    "joblib==1.5.3"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "ruff"
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
