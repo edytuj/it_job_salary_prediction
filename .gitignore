@@ -3,8 +3,11 @@ models/*.pkl
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
-data/raw/
-data/processed/
+data/raw/*
+!data/raw/**/*.dvc
+data/processed/*
+!data/processed/**/*.dvc
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

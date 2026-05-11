@@ -31,7 +31,8 @@ dev = [
     "httpx",
     "unidecode",
     "black",
-    "ruff"
+    "ruff",
+    "dvc"
 ]
 
 [tool.setuptools]

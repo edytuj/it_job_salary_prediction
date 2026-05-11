@@ -1,0 +1,5 @@
+outs:
+- md5: 344bd296231e8cac4b816545c3fee31a
+  size: 69111
+  hash: md5
+  path: jobs_processed.parquet
