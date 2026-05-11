@@ -245,7 +245,6 @@ The project uses Ruff for linting and import organization.
 
 ## Monitoring
 
-
 The API exposes Prometheus-compatible metrics for:
 - request throughput
 - API latency
@@ -253,6 +252,11 @@ The API exposes Prometheus-compatible metrics for:
 
 Basic operational monitoring is supported through a dedicated `/health`
 endpoint and a lightweight health-check script.
+
+## Dataset Versioning
+
+The project uses DVC for lightweight dataset and model artifact versioning.
+This ensures reproducibility across retraining runs while keeping Git history clean.
 
 ## Architecture Overview
 
@@ -296,7 +300,7 @@ The project follows a layered architecture that separates concerns between model
 
 ## Future Improvements
 - model registry (multiple models via config)
-- deployment (Docker/cloud
+- deployment (Docker/cloud)
 - better uncertainty estimation (quantiles/calibration)
 - monitoring and logging
 
