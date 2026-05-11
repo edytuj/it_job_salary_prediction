@@ -2,12 +2,14 @@ import re
 
 
 def compute_salary_avg(row):
+    """Compute the average salary from salary_min and salary_max values."""
     if row["salary_min"] and row["salary_max"]:
         return (row["salary_min"] + row["salary_max"]) / 2
     return None
 
 
 def extract_seniority(title):
+    """Detect seniority level from a job title string using regex patterns."""
 
     if not isinstance(title, str):
         return None
@@ -28,5 +30,6 @@ def extract_seniority(title):
 
 
 def add_skills_count(df):
+    """Add a skills_count column by counting items in the skills_clean list."""
     df["skills_count"] = df["skills_clean"].apply(len)
     return df
