@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "salary-prediction-api"
+
+    static_configs:
+      - targets:
+          - "localhost:8000"
+          - "host.docker.internal:8000"
