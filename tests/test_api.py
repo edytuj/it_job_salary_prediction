@@ -167,3 +167,11 @@ def test_ready_error_predict(client, monkeypatch):
     response = client.get("/ready")
 
     assert response.status_code == 500
+
+
+def test_metrics_endpoint(client):
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert "salary_prediction_requests" in response.text
+    assert "text/plain" in response.headers["content-type"]
