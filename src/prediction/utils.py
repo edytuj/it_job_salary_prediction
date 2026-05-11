@@ -1,8 +1,10 @@
 import logging
+from time import time
 
 import numpy as np
 
 from utils.utils import format_salary
+from src.utils.metrics import PREDICTION_LATENCY
 
 MIN_ERROR = 1000  # minimum error to avoid misleading confidence estimation when fallback_error is 0
 
@@ -69,6 +71,8 @@ def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
     preprocessor = pipeline.named_steps["preprocessor"]
     model = pipeline.named_steps["model"]
 
+    start = time.perf_counter()
+
     X_transformed = preprocessor.transform(X)
     logger.debug("Data transformed using preprocessor.")
 
@@ -104,6 +108,10 @@ def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
     confidence_based_on_relative_uncertainty = calculate_relative_confidence(
         mean_pred, std
     )
+
+    duration = time.perf_counter() - start
+
+    PREDICTION_LATENCY.observe(duration)
 
     logger.info(
         "Prediction completed: mean_pred={}, low={}, high={}, std={}, method={}".format(

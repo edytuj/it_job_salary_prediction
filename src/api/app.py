@@ -11,6 +11,10 @@ from enum import Enum
 from prediction.utils import predict_with_uncertainty_and_confidence
 from utils.utils import format_salary
 from model.model_loader import get_model
+from utils.metrics import (
+    REQUEST_COUNT,
+    REQUEST_LATENCY,
+)
 
 
 from utils.logging_config import setup_logging
@@ -161,3 +165,17 @@ def ready():
     except Exception as e:
         logger.error(f"Error during readiness check: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start = time.perf_counter()
+
+    response = await call_next(request)
+
+    duration = time.perf_counter() - start
+
+    REQUEST_COUNT.inc()
+    REQUEST_LATENCY.observe(duration)
+
+    return response
