@@ -239,6 +239,17 @@ Run tests:
 pytest
 ```
 
+## Monitoring
+
+
+The API exposes Prometheus-compatible metrics for:
+- request throughput
+- API latency
+- model inference latency
+
+Basic operational monitoring is supported through a dedicated `/health`
+endpoint and a lightweight health-check script.
+
 ## Architecture Overview
 
 The project follows a layered architecture that separates concerns between model logic, infrastructure, and application interfaces.
