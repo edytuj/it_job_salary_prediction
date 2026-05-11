@@ -2,6 +2,8 @@ import pandas as pd
 import time
 import logging
 
+from requests import Response
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -11,6 +13,7 @@ from enum import Enum
 from prediction.utils import predict_with_uncertainty_and_confidence
 from utils.utils import format_salary
 from model.model_loader import get_model
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from utils.metrics import (
     REQUEST_COUNT,
     REQUEST_LATENCY,
@@ -165,6 +168,12 @@ def ready():
     except Exception as e:
         logger.error(f"Error during readiness check: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/metrics")
+def metrics():
+    logger.info("Metrics requested")
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.middleware("http")
