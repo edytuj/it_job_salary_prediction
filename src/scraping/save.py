@@ -5,8 +5,8 @@ import pandas as pd
 def save_to_csv(data, path):
     """
     Save DataFrame to CSV.
-    - If a file exists -> append data without a header.
-    - Otherwise -> create it with a header.
+    - If a file exists, append data without a header.
+    - Otherwise create it with a header.
     """
     df = pd.DataFrame(data)
 

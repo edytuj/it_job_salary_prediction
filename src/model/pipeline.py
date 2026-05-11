@@ -8,6 +8,10 @@ from preprocessing.transformers import (
 
 
 def build_preprocessor():
+    """Build a ColumnTransformer that encodes seniority, skills, city, and counts.
+
+    Returns a preprocessor that prepares input features for the model pipeline.
+    """
     return ColumnTransformer(
         transformers=[
             ("seniority", SeniorityEncoder(), ["seniority"]),

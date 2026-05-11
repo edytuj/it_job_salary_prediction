@@ -4,6 +4,7 @@ from unidecode import unidecode
 
 
 def clean_title(title):
+    """Clean and normalize job title by removing common stopwords."""
     if pd.isna(title):
         return None
 
@@ -27,6 +28,7 @@ def clean_title(title):
 
 
 def clean_company(company):
+    """Clean company name by removing quotes, legal forms, and extra text."""
     if pd.isna(company):
         return None
 
@@ -43,6 +45,7 @@ def clean_company(company):
 
 
 def clean_city(city):
+    """Normalize city name by transliterating and applying standard mappings."""
     if pd.isna(city):
         return None
 
@@ -58,6 +61,7 @@ def clean_city(city):
 
 
 def clean_skills(skills):
+    """Parse and clean skills list, removing unwanted items and applying mappings."""
     if pd.isna(skills):
         return []
 

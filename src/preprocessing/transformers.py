@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 class SeniorityEncoder(BaseEstimator, TransformerMixin):
     """
     Transformer for seniority feature.
-    Converts 'junior' -> 0, 'mid' -> 1, 'senior' -> 2, unknown -> -1
+    Converts 'junior' -> 0, 'mid' -> 1, 'senior' -> 2, 'lead' -> 3, 'principal' -> 4, unknown -> -1
     """
 
     def __init__(self, column="seniority"):

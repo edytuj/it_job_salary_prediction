@@ -65,6 +65,7 @@ class PredictionRequest(BaseModel):
 
 
 def prepare_input(data: PredictionRequest):
+    """Convert PredictionRequest payload into a model-ready pandas DataFrame."""
     logger.info("Preparing input data for prediction")
     return pd.DataFrame(
         [
@@ -81,6 +82,7 @@ def prepare_input(data: PredictionRequest):
 
 @app.post("/predict")
 def predict(data: PredictionRequest):
+    """Handle prediction requests and return the salary prediction results."""
     logger.info("Prediction request received")
     model, mae = get_model()
     logger.info("Model loaded successfully")
@@ -104,11 +106,13 @@ def predict(data: PredictionRequest):
 
 @app.get("/health", status_code=200)
 def health():
+    """Health check endpoint returning service status."""
     logger.info("Health check requested")
     return {"status": "ok"}
 
 
 def get_dummy_input():
+    """Build dummy input data used for the model readiness probe."""
     logger.debug("Generating dummy input for readiness check")
     return pd.DataFrame(
         [
@@ -124,6 +128,7 @@ def get_dummy_input():
 
 
 def check_readiness(model, X, threshold_ms=100):
+    """Run a quick cold and warm inference check to determine readiness."""
     logger.info("Starting readiness check")
     start_time = time.perf_counter()
     model.predict(X)
@@ -147,6 +152,7 @@ def check_readiness(model, X, threshold_ms=100):
 
 @app.get("/ready")
 def ready():
+    """Perform readiness validation and return current model readiness state."""
     logger.info("Readiness check requested")
     try:
         model, _ = get_model()
@@ -170,12 +176,14 @@ def ready():
 
 @app.get("/metrics")
 def metrics():
+    """Expose Prometheus metrics for monitoring and scraping."""
     logger.info("Metrics requested")
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.middleware("http")
 async def metrics_middleware(request: Request, call_next):
+    """Track request count and latency for every incoming HTTP request."""
     start = time.perf_counter()
 
     response = await call_next(request)

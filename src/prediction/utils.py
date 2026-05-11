@@ -52,11 +52,19 @@ def calculate_relative_confidence(
 
 
 def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
-    """
-    Predict with uncertainty for different model types.
+    """Generate a salary prediction with uncertainty and confidence labels.
+
+    This function calculates also uncertainty using either model-internal variance (for random forest) or a fallback error estimate,
+     and then derives confidence levels based on the uncertainty spread and relative uncertainty.
 
     Returns:
-        mean_pred, low, high, std, method
+        mean_pred: float - predicted salary mean value
+        low: float - lower bound of the uncertainty interval
+        high: float - upper bound of the uncertainty interval
+        std: float - estimated prediction standard deviation
+        confidence_based_on_spread: str - absolute confidence label
+        confidence_based_on_relative_uncertainty: str - relative confidence label
+        method: str - uncertainty method used ('rf_variance' or 'fallback_error')
     """
     logger.info("Starting prediction with uncertainty and confidence calculation.")
 

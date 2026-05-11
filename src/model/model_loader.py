@@ -19,6 +19,7 @@ GITHUB_RELEASES_URL = (
 
 
 def get_all_releases():
+    """Fetch the GitHub release metadata for published model artifacts."""
     logger.info("Fetching all releases from GitHub")
     response = requests.get(GITHUB_RELEASES_URL)
     response.raise_for_status()
@@ -26,6 +27,7 @@ def get_all_releases():
 
 
 def find_latest_model_in_releases(url, prefix="hgb"):
+    """Locate the most recent release asset pair matching the model prefix."""
     logger.info("Finding latest model in releases")
     releases = get_all_releases()
 
@@ -58,6 +60,7 @@ def find_latest_model_in_releases(url, prefix="hgb"):
 
 
 def download_file(url, path):
+    """Download a file from a URL and save it to the specified local path."""
     logger.info(f"Downloading file from {url} to {path}")
     response = requests.get(url)
     response.raise_for_status()
@@ -69,6 +72,7 @@ def download_file(url, path):
 
 
 def read_expected_hash(path):
+    """Read and validate the expected SHA256 hash from a text file."""
     logger.debug(f"Reading expected hash from {path}")
     with open(path, "r") as f:
         content = f.read().strip()
@@ -86,6 +90,7 @@ def read_expected_hash(path):
 
 
 def clear_models_dir(models_dir):
+    """Remove all files and subdirectories from the local models directory."""
     logger.info(f"Clearing models directory: {models_dir}")
     for item in models_dir.iterdir():
         if item.is_file():
@@ -95,6 +100,7 @@ def clear_models_dir(models_dir):
 
 
 def ensure_model(prefix):
+    """Ensure a model exists locally by loading it or downloading it from GitHub."""
     logger.info(f"Ensuring model with prefix {prefix}")
     existing_model = load_latest_model_local(MODELS_DIR, prefix)
 
@@ -124,6 +130,7 @@ def ensure_model(prefix):
 
 
 def load_latest_model_from_github(url, prefix):
+    """Download the latest model and hash file from GitHub, then verify the hash."""
     logger.info("Loading latest model from GitHub")
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -144,6 +151,7 @@ def load_latest_model_from_github(url, prefix):
 
 
 def verify_file(path, expected_hash):
+    """Compute the SHA256 hash of a file and compare it to the expected value."""
     logger.info(f"Verifying file: {path}")
 
     sha256 = hashlib.sha256()
@@ -166,6 +174,7 @@ def verify_file(path, expected_hash):
 
 
 def load_latest_model_local(models_dir, prefix):
+    """Select the latest local model file matching the configured prefix."""
     logger.debug(f"Loading latest model local from {models_dir} with prefix {prefix}")
     model_files = list(models_dir.glob(f"{prefix}_*.pkl"))
 
@@ -180,6 +189,7 @@ def load_latest_model_local(models_dir, prefix):
 
 @lru_cache(maxsize=1)
 def get_model():
+    """Load the model and cache the result to avoid repeated reloads."""
     logger.info("Getting model")
     try:
         model_path = ensure_model(prefix="hgb")
@@ -192,6 +202,7 @@ def get_model():
 
 
 def get_model_name():
+    """Return the class name of the loaded model estimator."""
     logger.debug("Getting model name")
     model, _ = get_model()
     return model.steps[-1][1].__class__.__name__
