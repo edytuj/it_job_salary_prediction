@@ -2,9 +2,7 @@ import pandas as pd
 import time
 import logging
 
-from requests import Response
-
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from pathlib import Path
