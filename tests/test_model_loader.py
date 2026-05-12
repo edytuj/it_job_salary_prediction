@@ -40,7 +40,7 @@ def sample_releases():
 
 def test_find_latest_model_in_releases_found(sample_releases):
     with patch("src.model.model_loader.get_all_releases", return_value=sample_releases):
-        model_url, hash_url, stem = find_latest_model_in_releases("hgb")
+        model_url, hash_url, stem = find_latest_model_in_releases("url", "hgb")
 
     assert model_url == "hgb_url"
     assert hash_url == "hgb_hash"
@@ -52,7 +52,7 @@ def test_find_latest_model_in_releases_not_found():
         "src.model.model_loader.get_all_releases", return_value=[{"assets": []}]
     ):
         with pytest.raises(ValueError):
-            find_latest_model_in_releases("hgb")
+            find_latest_model_in_releases("url", "hgb")
 
 
 def test_read_expected_hash():
