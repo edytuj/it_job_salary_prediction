@@ -8,8 +8,6 @@ import pandas as pd
 from model.model_loader import get_model
 from utils.paths import BENCHMARK_FILE
 
-OUTPUT_FILE = BENCHMARK_FILE
-
 
 def get_dummy_input():
     return pd.DataFrame(
@@ -69,17 +67,17 @@ def save_results(results):
 
     df = pd.DataFrame([results])
 
-    if OUTPUT_FILE.exists():
-        df.to_csv(OUTPUT_FILE, mode="a", header=False, index=False)
+    if BENCHMARK_FILE.exists():
+        df.to_csv(BENCHMARK_FILE, mode="a", header=False, index=False)
     else:
-        df.to_csv(OUTPUT_FILE, index=False)
+        df.to_csv(BENCHMARK_FILE, index=False)
 
-    print(f"Results saved to {OUTPUT_FILE}")
+    print(f"Results saved to {BENCHMARK_FILE}")
 
 
 def print_results():
-    if OUTPUT_FILE.exists():
-        df = pd.read_csv(OUTPUT_FILE)
+    if BENCHMARK_FILE.exists():
+        df = pd.read_csv(BENCHMARK_FILE)
         print(df.groupby("model")["warm_avg_ms"].mean())
     else:
         print("No results found.")
