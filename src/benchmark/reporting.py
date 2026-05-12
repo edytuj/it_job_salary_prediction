@@ -5,17 +5,17 @@ import pandas as pd
 from utils.paths import BENCHMARK_FILE
 
 
-def save_results(results):
+def save_results(results, output_file=BENCHMARK_FILE):
     results["timestamp"] = datetime.now().isoformat()
 
     df = pd.DataFrame([results])
 
-    if BENCHMARK_FILE.exists():
-        df.to_csv(BENCHMARK_FILE, mode="a", header=False, index=False)
+    if output_file.exists():
+        df.to_csv(output_file, mode="a", header=False, index=False)
     else:
-        df.to_csv(BENCHMARK_FILE, index=False)
+        df.to_csv(output_file, index=False)
 
-    print(f"Results saved to {BENCHMARK_FILE}")
+    print(f"Results saved to {output_file}")
 
 
 def show_results():
