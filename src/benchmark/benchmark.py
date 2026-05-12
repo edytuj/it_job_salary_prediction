@@ -1,12 +1,11 @@
-import sys
-import time
 import statistics
+import time
 from datetime import datetime
-from pathlib import Path
+
 import pandas as pd
 
-from model.model_loader import get_model
 from config.settings import settings
+from model.model_loader import get_model
 from utils.paths import BENCHMARK_FILE
 
 
@@ -91,6 +90,6 @@ def show_results():
 
         print(" Benchmark summary ".center(46, "-"))
         print(summary.to_string(index=False))
-        print(f"\n{'-'*46}\n")
+        print(f"\n{'-' * 46}\n")
     else:
         print("No results found.")
