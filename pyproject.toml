@@ -53,3 +53,4 @@ select = [
 
 [project.scripts]
 predict-salary = "prediction.cli:main"
+benchmark = "benchmark.cli:main"
