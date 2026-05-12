@@ -239,6 +239,10 @@ Run tests:
 pytest
 ```
 
+## Code Quality
+
+The project uses Ruff for linting and import organization.
+
 ## Monitoring
 
 
