@@ -1,7 +1,8 @@
 import re
+from typing import Any, Optional
 
 
-def parse_job_listings(soup):
+def parse_job_listings(soup: Any) -> list[dict[str, Any]]:
 
     jobs = soup.select("a.posting-list-item")
     print(len(jobs))
@@ -47,7 +48,7 @@ def parse_job_listings(soup):
     return results
 
 
-def parse_salary(salary_tag):
+def parse_salary(salary_tag: Any) -> tuple[Optional[int], Optional[int]]:
     if not salary_tag:
         return None, None
 

@@ -1,7 +1,9 @@
 import logging
 import time
+from typing import Any, Tuple
 
 import numpy as np
+import pandas as pd
 
 from utils.utils import format_salary
 from src.utils.metrics import PREDICTION_LATENCY
@@ -11,11 +13,16 @@ MIN_ERROR = 1000  # minimum error to avoid misleading confidence estimation when
 logger = logging.getLogger(__name__)
 
 
-def calculate_spread(low, high):
+def calculate_spread(low: float, high: float) -> float:
     return high - low
 
 
-def calculate_absolute_confidence(low, high, error_margin, error_margin_factor=2):
+def calculate_absolute_confidence(
+    low: float,
+    high: float,
+    error_margin: float,
+    error_margin_factor: float = 2,
+) -> str:
     spread = calculate_spread(low, high)
 
     if spread < error_margin:
@@ -28,7 +35,7 @@ def calculate_absolute_confidence(low, high, error_margin, error_margin_factor=2
     return confidence
 
 
-def calculate_relative_uncertainty(mean_pred, std):
+def calculate_relative_uncertainty(mean_pred: float, std: float) -> float:
     if mean_pred < 1:
         logger.warning(
             "Warning: mean prediction is very low, to avoid misleading value, uncertainty == std."
@@ -37,8 +44,11 @@ def calculate_relative_uncertainty(mean_pred, std):
 
 
 def calculate_relative_confidence(
-    mean_pred, std, high_error_margin=0.1, medium_error_margin=0.25
-):
+    mean_pred: float,
+    std: float,
+    high_error_margin: float = 0.1,
+    medium_error_margin: float = 0.25,
+) -> str:
     relative_uncertainty = calculate_relative_uncertainty(mean_pred, std)
 
     if relative_uncertainty < high_error_margin:
@@ -51,7 +61,11 @@ def calculate_relative_confidence(
     return confidence
 
 
-def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
+def predict_with_uncertainty_and_confidence(
+    pipeline: Any,
+    X: pd.DataFrame,
+    fallback_error: float,
+) -> Tuple[float, float, float, float, str, str, str]:
     """Generate a salary prediction with uncertainty and confidence labels.
 
     This function calculates also uncertainty using either model-internal variance (for random forest) or a fallback error estimate,
@@ -139,15 +153,15 @@ def predict_with_uncertainty_and_confidence(pipeline, X, fallback_error):
 
 
 def print_output(
-    input_df,
-    mean_pred,
-    low,
-    high,
-    std,
-    confidence_based_on_spread,
-    confidence_based_on_relative_uncertainty,
-    method,
-):
+    input_df: pd.DataFrame,
+    mean_pred: float,
+    low: float,
+    high: float,
+    std: float,
+    confidence_based_on_spread: str,
+    confidence_based_on_relative_uncertainty: str,
+    method: str,
+) -> None:
 
     logger.info("Printing prediction output.")
 

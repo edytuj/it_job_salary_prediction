@@ -7,7 +7,7 @@ from preprocessing.transformers import (
 )
 
 
-def build_preprocessor():
+def build_preprocessor() -> ColumnTransformer:
     """Build a ColumnTransformer that encodes seniority, skills, city, and counts.
 
     Returns a preprocessor that prepares input features for the model pipeline.

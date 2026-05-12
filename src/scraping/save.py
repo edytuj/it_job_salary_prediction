@@ -1,8 +1,11 @@
 import os
+from pathlib import Path
+from typing import Any
+
 import pandas as pd
 
 
-def save_to_csv(data, path):
+def save_to_csv(data: Any, path: str | Path) -> None:
     """
     Save DataFrame to CSV.
     - If a file exists, append data without a header.

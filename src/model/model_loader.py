@@ -1,5 +1,7 @@
 import logging
 import shutil
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
 import joblib
 import requests
@@ -9,8 +11,6 @@ from functools import lru_cache
 
 from utils.paths import MODELS_DIR
 
-import requests
-
 logger = logging.getLogger(__name__)
 
 GITHUB_RELEASES_URL = (
@@ -18,7 +18,7 @@ GITHUB_RELEASES_URL = (
 )
 
 
-def get_all_releases():
+def get_all_releases() -> list[dict[str, Any]]:
     """Fetch the GitHub release metadata for published model artifacts."""
     logger.info("Fetching all releases from GitHub")
     response = requests.get(GITHUB_RELEASES_URL)
@@ -26,7 +26,9 @@ def get_all_releases():
     return response.json()
 
 
-def find_latest_model_in_releases(url, prefix="hgb"):
+def find_latest_model_in_releases(
+    url: str, prefix: str = "hgb"
+) -> tuple[str, str, str]:
     """Locate the most recent release asset pair matching the model prefix."""
     logger.info("Finding latest model in releases")
     releases = get_all_releases()
@@ -59,7 +61,7 @@ def find_latest_model_in_releases(url, prefix="hgb"):
     raise ValueError(f"No model + hash with prefix '{prefix}' found in any release")
 
 
-def download_file(url, path):
+def download_file(url: str, path: Path) -> None:
     """Download a file from a URL and save it to the specified local path."""
     logger.info(f"Downloading file from {url} to {path}")
     response = requests.get(url)
@@ -71,7 +73,7 @@ def download_file(url, path):
     logger.info(f"Downloaded file: {path}")
 
 
-def read_expected_hash(path):
+def read_expected_hash(path: Path) -> str:
     """Read and validate the expected SHA256 hash from a text file."""
     logger.debug(f"Reading expected hash from {path}")
     with open(path, "r") as f:
@@ -89,7 +91,7 @@ def read_expected_hash(path):
     return hash_value
 
 
-def clear_models_dir(models_dir):
+def clear_models_dir(models_dir: Path) -> None:
     """Remove all files and subdirectories from the local models directory."""
     logger.info(f"Clearing models directory: {models_dir}")
     for item in models_dir.iterdir():
@@ -99,7 +101,7 @@ def clear_models_dir(models_dir):
             shutil.rmtree(item)
 
 
-def ensure_model(prefix):
+def ensure_model(prefix: str) -> Path:
     """Ensure a model exists locally by loading it or downloading it from GitHub."""
     logger.info(f"Ensuring model with prefix {prefix}")
     existing_model = load_latest_model_local(MODELS_DIR, prefix)
@@ -129,7 +131,7 @@ def ensure_model(prefix):
                 )
 
 
-def load_latest_model_from_github(url, prefix):
+def load_latest_model_from_github(url: str, prefix: str) -> Path:
     """Download the latest model and hash file from GitHub, then verify the hash."""
     logger.info("Loading latest model from GitHub")
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
@@ -150,7 +152,7 @@ def load_latest_model_from_github(url, prefix):
     return model_path
 
 
-def verify_file(path, expected_hash):
+def verify_file(path: Path, expected_hash: str) -> None:
     """Compute the SHA256 hash of a file and compare it to the expected value."""
     logger.info(f"Verifying file: {path}")
 
@@ -173,7 +175,7 @@ def verify_file(path, expected_hash):
     logger.info("Model hash verified successfully.")
 
 
-def load_latest_model_local(models_dir, prefix):
+def load_latest_model_local(models_dir: Path, prefix: str) -> Optional[Path]:
     """Select the latest local model file matching the configured prefix."""
     logger.debug(f"Loading latest model local from {models_dir} with prefix {prefix}")
     model_files = list(models_dir.glob(f"{prefix}_*.pkl"))
@@ -188,7 +190,7 @@ def load_latest_model_local(models_dir, prefix):
 
 
 @lru_cache(maxsize=1)
-def get_model():
+def get_model() -> tuple[Any, float]:
     """Load the model and cache the result to avoid repeated reloads."""
     logger.info("Getting model")
     try:
@@ -201,7 +203,7 @@ def get_model():
         raise RuntimeError(f"Failed to load model: {e}") from e
 
 
-def get_model_name():
+def get_model_name() -> str:
     """Return the class name of the loaded model estimator."""
     logger.debug("Getting model name")
     model, _ = get_model()

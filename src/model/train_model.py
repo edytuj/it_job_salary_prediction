@@ -5,11 +5,11 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
-
 from sklearn.pipeline import Pipeline
 
 from model.pipeline import build_preprocessor
@@ -30,12 +30,12 @@ hgb_grid = {
 }
 
 
-def load_data(path):
+def load_data(path: str | Path) -> pd.DataFrame:
     df = pd.read_parquet(path)
     return df
 
 
-def prepare_data(df):
+def prepare_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
 
     X = df.drop(columns=["salary_avg"])
 
@@ -44,11 +44,19 @@ def prepare_data(df):
     return X, y
 
 
-def split_data(X, y):
+def split_data(
+    X: pd.DataFrame, y: pd.Series
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     return train_test_split(X, y, test_size=0.2, random_state=42)
 
 
-def train_rf_with_grid(preprocessor, X_train, y_train, param_grid=rf_grid, cv=5):
+def train_rf_with_grid(
+    preprocessor: ColumnTransformer,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    param_grid: dict = rf_grid,
+    cv: int = 5,
+) -> Pipeline:
     pipe = Pipeline(
         [
             ("preprocessor", preprocessor),
@@ -67,7 +75,13 @@ def train_rf_with_grid(preprocessor, X_train, y_train, param_grid=rf_grid, cv=5)
     return grid.best_estimator_
 
 
-def train_ridge_with_grid(preprocessor, X_train, y_train, param_grid=ridge_grid, cv=5):
+def train_ridge_with_grid(
+    preprocessor: ColumnTransformer,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    param_grid: dict = ridge_grid,
+    cv: int = 5,
+) -> Pipeline:
     pipe = Pipeline([("preprocessor", preprocessor), ("model", Ridge())])
 
     grid = GridSearchCV(
@@ -81,7 +95,13 @@ def train_ridge_with_grid(preprocessor, X_train, y_train, param_grid=ridge_grid,
     return grid.best_estimator_
 
 
-def train_hgb_with_grid(preprocessor, X_train, y_train, param_grid=hgb_grid, cv=5):
+def train_hgb_with_grid(
+    preprocessor: ColumnTransformer,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    param_grid: dict = hgb_grid,
+    cv: int = 5,
+) -> Pipeline:
 
     pipe = Pipeline(
         [
@@ -101,7 +121,7 @@ def train_hgb_with_grid(preprocessor, X_train, y_train, param_grid=hgb_grid, cv=
     return grid.best_estimator_
 
 
-def train_models(X_train, y_train):
+def train_models(X_train: pd.DataFrame, y_train: pd.Series) -> dict[str, Pipeline]:
     models = {}
 
     preprocessor = build_preprocessor()
@@ -117,7 +137,7 @@ def train_models(X_train, y_train):
     return models
 
 
-def baseline_median(y_train, y_test):
+def baseline_median(y_train: pd.Series, y_test: pd.Series) -> float:
     median = y_train.median()
 
     pred = np.full_like(y_test, median)
@@ -127,7 +147,11 @@ def baseline_median(y_train, y_test):
     return mae
 
 
-def evaluate(models, X_test, y_test):
+def evaluate(
+    models: dict[str, Pipeline],
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
+) -> dict[str, dict[str, float]]:
     results = {}
 
     for name, model in models.items():
@@ -144,7 +168,11 @@ def evaluate(models, X_test, y_test):
     return results
 
 
-def cross_validate_models(models, X, y):
+def cross_validate_models(
+    models: dict[str, Pipeline],
+    X: pd.DataFrame,
+    y: pd.Series,
+) -> dict[str, np.ndarray]:
     results = {}
 
     for name, model in models.items():
@@ -155,7 +183,7 @@ def cross_validate_models(models, X, y):
     return results
 
 
-def analyze_skill_impact(df, min_count=50):
+def analyze_skill_impact(df: pd.DataFrame, min_count: int = 50) -> pd.DataFrame:
     all_skills = df["skills_clean"].explode()
 
     results = []
@@ -173,7 +201,7 @@ def analyze_skill_impact(df, min_count=50):
     return result_df.sort_values("count", ascending=False)
 
 
-def analyze_feature_importance_for_random_forest(model):
+def analyze_feature_importance_for_random_forest(model: Pipeline) -> None:
 
     feature_names = model.named_steps["preprocessor"].get_feature_names_out()
 
@@ -186,7 +214,7 @@ def analyze_feature_importance_for_random_forest(model):
     print(df_importance.head(20))
 
 
-def save_models(models, baseline_mae):
+def save_models(models: dict[str, Pipeline], baseline_mae: float) -> None:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
 
     BASE_DIR = Path(__file__).resolve().parent

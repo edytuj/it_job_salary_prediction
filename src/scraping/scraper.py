@@ -18,7 +18,7 @@ CATEGORIES = [
 ]
 
 
-def fetch_page(url: str, retries: int = 3, delay: int = 3):
+def fetch_page(url: str, retries: int = 3, delay: int = 3) -> str:
     """
     Fetches a page with URL.
     Adds User-Agent and retry for error 502 or other error with connectivity.

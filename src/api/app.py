@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from pathlib import Path
 from enum import Enum
+from typing import Any, Callable, Awaitable
 
 from prediction.utils import predict_with_uncertainty_and_confidence
 from utils.utils import format_salary
@@ -32,7 +33,9 @@ class ModelNotReadyError(Exception):
 
 
 @app.exception_handler(ModelNotReadyError)
-async def model_not_ready_handler(request: Request, exc: ModelNotReadyError):
+async def model_not_ready_handler(
+    request: Request, exc: ModelNotReadyError
+) -> JSONResponse:
     logger.error(f"Model not ready: {exc}")
     return JSONResponse(
         status_code=503,
@@ -41,7 +44,7 @@ async def model_not_ready_handler(request: Request, exc: ModelNotReadyError):
 
 
 @app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception):
+async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     logger.error(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=500,
@@ -64,7 +67,7 @@ class PredictionRequest(BaseModel):
     seniority: Seniority
 
 
-def prepare_input(data: PredictionRequest):
+def prepare_input(data: PredictionRequest) -> pd.DataFrame:
     """Convert PredictionRequest payload into a model-ready pandas DataFrame."""
     logger.info("Preparing input data for prediction")
     return pd.DataFrame(
@@ -81,7 +84,7 @@ def prepare_input(data: PredictionRequest):
 
 
 @app.post("/predict")
-def predict(data: PredictionRequest):
+def predict(data: PredictionRequest) -> dict:
     """Handle prediction requests and return the salary prediction results."""
     logger.info("Prediction request received")
     model, mae = get_model()
@@ -105,13 +108,13 @@ def predict(data: PredictionRequest):
 
 
 @app.get("/health", status_code=200)
-def health():
+def health() -> dict:
     """Health check endpoint returning service status."""
     logger.info("Health check requested")
     return {"status": "ok"}
 
 
-def get_dummy_input():
+def get_dummy_input() -> pd.DataFrame:
     """Build dummy input data used for the model readiness probe."""
     logger.debug("Generating dummy input for readiness check")
     return pd.DataFrame(
@@ -127,7 +130,7 @@ def get_dummy_input():
     )
 
 
-def check_readiness(model, X, threshold_ms=100):
+def check_readiness(model: Any, X: pd.DataFrame, threshold_ms: float = 100) -> dict:
     """Run a quick cold and warm inference check to determine readiness."""
     logger.info("Starting readiness check")
     start_time = time.perf_counter()
@@ -151,7 +154,7 @@ def check_readiness(model, X, threshold_ms=100):
 
 
 @app.get("/ready")
-def ready():
+def ready() -> dict:
     """Perform readiness validation and return current model readiness state."""
     logger.info("Readiness check requested")
     try:
@@ -175,14 +178,16 @@ def ready():
 
 
 @app.get("/metrics")
-def metrics():
+def metrics() -> Response:
     """Expose Prometheus metrics for monitoring and scraping."""
     logger.info("Metrics requested")
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.middleware("http")
-async def metrics_middleware(request: Request, call_next):
+async def metrics_middleware(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
     """Track request count and latency for every incoming HTTP request."""
     start = time.perf_counter()
 

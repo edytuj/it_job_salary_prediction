@@ -1,9 +1,11 @@
 import re
+from typing import Optional
+
 import pandas as pd
 from unidecode import unidecode
 
 
-def clean_title(title):
+def clean_title(title: str) -> Optional[str]:
     """Clean and normalize job title by removing common stopwords."""
     if pd.isna(title):
         return None
@@ -27,7 +29,7 @@ def clean_title(title):
     return " ".join([w for w in words if w not in STOPWORDS])
 
 
-def clean_company(company):
+def clean_company(company: str) -> Optional[str]:
     """Clean company name by removing quotes, legal forms, and extra text."""
     if pd.isna(company):
         return None
@@ -44,7 +46,7 @@ def clean_company(company):
     return company.strip()
 
 
-def clean_city(city):
+def clean_city(city: str) -> Optional[str]:
     """Normalize city name by transliterating and applying standard mappings."""
     if pd.isna(city):
         return None
@@ -60,7 +62,7 @@ def clean_city(city):
     return city
 
 
-def clean_skills(skills):
+def clean_skills(skills: str) -> list[str]:
     """Parse and clean skills list, removing unwanted items and applying mappings."""
     if pd.isna(skills):
         return []
