@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 from model.model_loader import get_model

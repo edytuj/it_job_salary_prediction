@@ -1,9 +1,8 @@
-import streamlit as st
+
 import requests
-import os
+import streamlit as st
 
 from config.settings import settings
-
 from utils.logging_config import setup_logging
 
 setup_logging()
@@ -11,7 +10,7 @@ setup_logging()
 
 st.set_page_config(page_title="Salary Predictor", layout="centered")
 
-st.title(f"IT Salary Predictor")
+st.title("IT Salary Predictor")
 
 st.write("Enter job details to estimate salary.")
 

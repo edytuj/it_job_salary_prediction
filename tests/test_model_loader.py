@@ -96,7 +96,6 @@ def test_ensure_model_skips_if_local_exists():
         ),
         patch("src.model.model_loader.load_latest_model_from_github") as mock_download,
     ):
-
         ensure_model("hgb")
 
         mock_download.assert_not_called()
@@ -107,7 +106,6 @@ def test_ensure_model_downloads_if_missing():
         patch("src.model.model_loader.load_latest_model_local", return_value=None),
         patch("src.model.model_loader.load_latest_model_from_github") as mock_download,
     ):
-
         ensure_model("hgb")
 
         mock_download.assert_called_once()
@@ -125,7 +123,6 @@ def test_get_model_success():
         ),
         patch("src.model.model_loader.joblib.load", return_value=fake_data),
     ):
-
         result = get_model()
 
     assert result.model == fake_model
@@ -145,7 +142,6 @@ def test_get_model_failure():
             "src.model.model_loader.joblib.load", side_effect=Exception("load error")
         ),
     ):
-
         with pytest.raises(RuntimeError):
             get_model()
 
@@ -214,7 +210,6 @@ def test_integration_download_and_verify(tmp_path):
         patch("src.model.model_loader.requests.get", side_effect=fake_get),
         patch("src.model.model_loader.MODELS_DIR", tmp_path),
     ):
-
         ensure_model("hgb")
 
         files = list(tmp_path.glob("*.pkl"))
@@ -268,7 +263,6 @@ def test_integration_retry_on_hash_mismatch(tmp_path):
         patch("src.model.model_loader.requests.get", side_effect=fake_get),
         patch("src.model.model_loader.MODELS_DIR", tmp_path),
     ):
-
         ensure_model("hgb")
 
         # ensure retry happened
@@ -290,7 +284,6 @@ def test_integration_cache_skips_download(tmp_path):
         ) as mock_local,
         patch("src.model.model_loader.requests.get") as mock_get,
     ):
-
         ensure_model("hgb")
 
         mock_local.assert_called_once()

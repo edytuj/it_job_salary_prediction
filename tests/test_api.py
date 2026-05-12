@@ -8,6 +8,7 @@ from api.app import app, check_readiness
 from model.model_loader import ModelData, get_model
 from prediction.utils import PredictionResult
 
+
 class FakeModel:
     def predict(self, X):
         return [20000]
