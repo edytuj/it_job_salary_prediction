@@ -13,6 +13,8 @@ class Settings(BaseSettings):
 
     log_dir: str = "logs"
 
+    debug: bool = False
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

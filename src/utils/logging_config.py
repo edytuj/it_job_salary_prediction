@@ -7,7 +7,7 @@ from config.settings import settings
 
 
 def setup_logging():
-    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    log_level = logging.DEBUG if settings.debug else logging.INFO
     log_dir = Path(settings.log_dir)
 
     log_dir.mkdir(exist_ok=True)
@@ -17,7 +17,7 @@ def setup_logging():
     )
 
     logger = logging.getLogger()
-    logger.setLevel(log_level)
+    logger.setLevel(level=log_level)
 
     logger.handlers.clear()
 
