@@ -1,17 +1,17 @@
+import hashlib
 import logging
+import re
 import shutil
+from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Optional
-from dataclasses import dataclass
 
 import joblib
 import requests
-import hashlib
-import re
-from functools import lru_cache
 
-from utils.paths import MODELS_DIR
 from config.settings import settings
+from utils.paths import MODELS_DIR
 
 logger = logging.getLogger(__name__)
 

@@ -1,15 +1,15 @@
 import pandas as pd
 
 from preprocessing.cleaning import (
-    clean_title,
-    clean_company,
     clean_city,
+    clean_company,
     clean_skills,
+    clean_title,
 )
 from preprocessing.features import (
+    add_skills_count,
     compute_salary_avg,
     extract_seniority,
-    add_skills_count,
 )
 
 RAW_PATH = "data/raw/jobs_raw.csv"

@@ -1,13 +1,13 @@
 import logging
 import time
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
 import pandas as pd
-from dataclasses import dataclass
 
-from utils.utils import format_salary
 from utils.metrics import PREDICTION_LATENCY
+from utils.utils import format_salary
 
 MIN_ERROR = 1000  # minimum error to avoid misleading confidence estimation when fallback_error is 0
 

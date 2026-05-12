@@ -1,8 +1,7 @@
-import pandas as pd
-import warnings
 
-from sklearn.pipeline import Pipeline
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.pipeline import Pipeline
 
 from model.pipeline import build_preprocessor
 from model.train_model import train_rf_with_grid

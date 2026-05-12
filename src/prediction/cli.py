@@ -1,12 +1,10 @@
 import argparse
-import logging
-import pandas as pd
 from argparse import Namespace
 
+import pandas as pd
+
 from model.model_loader import get_model
-
 from prediction.utils import predict_with_uncertainty_and_confidence, print_output
-
 from utils.logging_config import setup_logging
 
 

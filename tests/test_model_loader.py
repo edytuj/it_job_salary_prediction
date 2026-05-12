@@ -1,16 +1,17 @@
-import pytest
 import hashlib
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import MagicMock, mock_open, patch
+
+import pytest
 
 from src.model.model_loader import (
-    find_latest_model_in_releases,
-    read_expected_hash,
-    verify_file,
+    ModelData,
     ensure_model,
+    find_latest_model_in_releases,
     get_model,
     get_model_name,
-    ModelData,
+    read_expected_hash,
+    verify_file,
 )
 
 # Fixture

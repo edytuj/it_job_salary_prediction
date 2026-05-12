@@ -1,8 +1,9 @@
 import pandas as pd
+
 from preprocessing.transformers import (
+    CityEncoder,
     SeniorityEncoder,
     SkillsTfidfEncoder,
-    CityEncoder,
 )
 
 

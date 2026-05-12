@@ -1,6 +1,6 @@
-import requests
 import time
 
+import requests
 from bs4 import BeautifulSoup
 
 from scraping.parser import parse_job_listings

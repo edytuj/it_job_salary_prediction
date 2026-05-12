@@ -1,15 +1,12 @@
 from typing import Any
+
 import pandas as pd
-
-from model.model_loader import get_model, ModelData
 import pytest
-
 from fastapi.testclient import TestClient
+
 from api.app import app, check_readiness
+from model.model_loader import ModelData, get_model
 from prediction.utils import PredictionResult
-
-client = TestClient(app)
-
 
 class FakeModel:
     def predict(self, X):

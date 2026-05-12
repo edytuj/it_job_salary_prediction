@@ -45,7 +45,7 @@ def main():
     )
 
     print_output(
-        input_df,
+        input,
         result.mean_prediction,
         result.confidence_interval_low,
         result.confidence_interval_high,

@@ -1,4 +1,4 @@
-from prometheus_client import Counter, Histogram, REGISTRY
+from prometheus_client import REGISTRY, Counter, Histogram
 
 
 def metric_exists(name: str) -> bool:

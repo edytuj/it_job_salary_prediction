@@ -1,25 +1,23 @@
-import pandas as pd
-import time
 import logging
+import time
+from enum import Enum
+from typing import Any, Awaitable, Callable
 
+import pandas as pd
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
-from pathlib import Path
-from enum import Enum
-from typing import Any, Callable, Awaitable
 
-from prediction.utils import predict_with_uncertainty_and_confidence
-from utils.utils import format_salary
+from config.settings import settings
 from model.model_loader import get_model
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from prediction.utils import predict_with_uncertainty_and_confidence
+from utils.logging_config import setup_logging
 from utils.metrics import (
     REQUEST_COUNT,
     REQUEST_LATENCY,
 )
-from config.settings import settings
-
-from utils.logging_config import setup_logging
+from utils.utils import format_salary
 
 setup_logging()
 

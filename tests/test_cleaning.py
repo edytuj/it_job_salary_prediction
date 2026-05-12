@@ -1,9 +1,10 @@
 import pandas as pd
+
 from preprocessing.cleaning import (
-    clean_title,
-    clean_company,
     clean_city,
+    clean_company,
     clean_skills,
+    clean_title,
 )
 
 

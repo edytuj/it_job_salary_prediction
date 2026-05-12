@@ -1,6 +1,4 @@
 import pandas as pd
-import ast
-
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 TOP_SKILLS = 50
@@ -24,9 +22,6 @@ def encode_seniority(df):
     df["seniority_encoded"] = df["seniority"].map(mapping).fillna(-1)
 
     return df
-
-
-import ast
 
 
 def encode_skills(df, top_n=30):

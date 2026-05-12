@@ -1,6 +1,7 @@
 import re
-import pandas as pd
 from typing import Optional
+
+import pandas as pd
 
 
 def compute_salary_avg(row: pd.Series) -> Optional[float]:

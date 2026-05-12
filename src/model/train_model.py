@@ -1,20 +1,19 @@
-import joblib
 import os
 from datetime import datetime
 from pathlib import Path
-import pandas as pd
-import numpy as np
 
+import joblib
+import numpy as np
+import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.ensemble import HistGradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import Ridge
-from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 from sklearn.pipeline import Pipeline
 
-from model.pipeline import build_preprocessor
-
 from config.model_types import ModelPrefix
+from model.pipeline import build_preprocessor
 
 ridge_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
 
@@ -268,7 +267,7 @@ def main():
         print(f"\nModel: {model_name}")
         print(f"MAE: {metrics['MAE']:.2f}")
         print(f"R2: {metrics['R2']:.4f}")
-        print(f"Cross-validation:")
+        print("Cross-validation:")
         print(f"R2 scores: {cv_results[model_name]}")
         print(f"R2 mean: {cv_results[model_name].mean():.4f}")
 

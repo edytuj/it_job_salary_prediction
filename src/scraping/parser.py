@@ -10,7 +10,6 @@ def parse_job_listings(soup: Any) -> list[dict[str, Any]]:
     results = []
 
     for job in jobs:
-
         title_tag = job.select_one("h3.posting-title__position")
         title = title_tag.contents[0].strip() if title_tag else None
         # company
