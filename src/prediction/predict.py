@@ -33,26 +33,24 @@ def main():
 
     model, mae = get_model()
 
-    input_df = prepare_input(
+    input = prepare_input(
         title="python developer",
         skills=["python", "aws", "sql"],
         city="warszawa",
         seniority="mid",
     )
 
-    mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
-        predict_with_uncertainty_and_confidence(model, input_df, fallback_error=mae)
-    )
+    result = predict_with_uncertainty_and_confidence(model, input, fallback_error=mae)
 
     print_output(
         input_df,
-        mean_pred,
-        low,
-        high,
-        std,
-        confidence_absolute,
-        confidence_relative,
-        method,
+        result.mean_prediction,
+        result.confidence_interval_low,
+        result.confidence_interval_high,
+        result.uncertainty_std,
+        result.confidence_spread,
+        result.confidence_relative,
+        result.method,
     )
 
 

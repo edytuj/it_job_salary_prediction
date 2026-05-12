@@ -79,19 +79,19 @@ def main():
 
         model, mae = get_model()
 
-        mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
-            predict_with_uncertainty_and_confidence(model, input, fallback_error=mae)
+        result = predict_with_uncertainty_and_confidence(
+            model, input, fallback_error=mae
         )
 
         print_output(
             input,
-            mean_pred,
-            low,
-            high,
-            std,
-            confidence_absolute,
-            confidence_relative,
-            method,
+            result.mean_prediction,
+            result.confidence_interval_low,
+            result.confidence_interval_high,
+            result.uncertainty_std,
+            result.confidence_spread,
+            result.confidence_relative,
+            result.method,
         )
 
     except Exception as e:

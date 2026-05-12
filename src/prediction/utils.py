@@ -4,6 +4,7 @@ from typing import Any, Tuple
 
 import numpy as np
 import pandas as pd
+from dataclasses import dataclass
 
 from utils.utils import format_salary
 from src.utils.metrics import PREDICTION_LATENCY
@@ -11,6 +12,17 @@ from src.utils.metrics import PREDICTION_LATENCY
 MIN_ERROR = 1000  # minimum error to avoid misleading confidence estimation when fallback_error is 0
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class PredictionResult:
+    mean_prediction: float
+    confidence_interval_low: float
+    confidence_interval_high: float
+    uncertainty_std: float
+    confidence_spread: str
+    confidence_relative: str
+    method: str
 
 
 def calculate_spread(low: float, high: float) -> float:
@@ -65,7 +77,7 @@ def predict_with_uncertainty_and_confidence(
     pipeline: Any,
     X: pd.DataFrame,
     fallback_error: float,
-) -> Tuple[float, float, float, float, str, str, str]:
+) -> PredictionResult:
     """Generate a salary prediction with uncertainty and confidence labels.
 
     This function calculates also uncertainty using either model-internal variance (for random forest) or a fallback error estimate,
@@ -141,14 +153,14 @@ def predict_with_uncertainty_and_confidence(
         )
     )
 
-    return (
-        mean_pred,
-        low,
-        high,
-        std,
-        confidence_based_on_spread,
-        confidence_based_on_relative_uncertainty,
-        method,
+    return PredictionResult(
+        mean_prediction=mean_pred,
+        confidence_interval_low=low,
+        confidence_interval_high=high,
+        uncertainty_std=std,
+        confidence_spread=confidence_based_on_spread,
+        confidence_relative=confidence_based_on_relative_uncertainty,
+        method=method,
     )
 
 

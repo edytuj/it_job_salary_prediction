@@ -92,18 +92,19 @@ def predict(data: PredictionRequest) -> dict:
     X = prepare_input(data)
     logger.info("Input data prepared")
 
-    mean_pred, low, high, std, confidence_absolute, confidence_relative, method = (
-        predict_with_uncertainty_and_confidence(model, X, fallback_error=mae)
-    )
+    result = predict_with_uncertainty_and_confidence(model, X, fallback_error=mae)
     logger.info("Prediction with uncertainty completed")
 
     return {
-        "prediction": format_salary(mean_pred),
-        "range": [format_salary(low), format_salary(high)],
-        "uncertainty": format_salary(std),
-        "confidence_absolute": confidence_absolute,
-        "confidence_relative": confidence_relative,
-        "method": method,
+        "prediction": format_salary(result.mean_prediction),
+        "range": [
+            format_salary(result.confidence_interval_low),
+            format_salary(result.confidence_interval_high),
+        ],
+        "uncertainty": format_salary(result.uncertainty_std),
+        "confidence_absolute": result.confidence_spread,
+        "confidence_relative": result.confidence_relative,
+        "method": result.method,
     }
 
 
