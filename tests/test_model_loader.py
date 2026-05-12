@@ -10,6 +10,7 @@ from src.model.model_loader import (
     ensure_model,
     get_model,
     get_model_name,
+    ModelData,
 )
 
 # Fixture
@@ -124,10 +125,10 @@ def test_get_model_success():
         patch("src.model.model_loader.joblib.load", return_value=fake_data),
     ):
 
-        model, mae = get_model()
+        result = get_model()
 
-    assert model == fake_model
-    assert mae == 0.1
+    assert result.model == fake_model
+    assert result.mae == 0.1
 
 
 def test_get_model_failure():
@@ -155,7 +156,10 @@ def test_get_model_name():
         ("model", MagicMock(__class__=MagicMock(__name__="TestModel"))),
     ]
 
-    with patch("src.model.model_loader.get_model", return_value=(mock_model, 0.1)):
+    with patch(
+        "src.model.model_loader.get_model",
+        return_value=ModelData(model=mock_model, mae=0.1),
+    ):
         name = get_model_name()
 
     assert name == "TestModel"

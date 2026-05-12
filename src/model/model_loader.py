@@ -1,7 +1,8 @@
 import logging
 import shutil
 from pathlib import Path
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
+from dataclasses import dataclass
 
 import joblib
 import requests
@@ -12,6 +13,13 @@ from functools import lru_cache
 from utils.paths import MODELS_DIR
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ModelData:
+    model: Any
+    mae: float
+
 
 GITHUB_RELEASES_URL = (
     "https://api.github.com/repos/edytuj/it_job_salary_prediction/releases"
@@ -190,14 +198,14 @@ def load_latest_model_local(models_dir: Path, prefix: str) -> Optional[Path]:
 
 
 @lru_cache(maxsize=1)
-def get_model() -> tuple[Any, float]:
+def get_model() -> ModelData:
     """Load the model and cache the result to avoid repeated reloads."""
     logger.info("Getting model")
     try:
         model_path = ensure_model(prefix="hgb")
         data = joblib.load(model_path)
         logger.info("Model loaded successfully")
-        return data["model"], data["mae"]
+        return ModelData(model=data["model"], mae=data["mae"])
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         raise RuntimeError(f"Failed to load model: {e}") from e
@@ -206,5 +214,5 @@ def get_model() -> tuple[Any, float]:
 def get_model_name() -> str:
     """Return the class name of the loaded model estimator."""
     logger.debug("Getting model name")
-    model, _ = get_model()
-    return model.steps[-1][1].__class__.__name__
+    model_data = get_model()
+    return model_data.model.steps[-1][1].__class__.__name__

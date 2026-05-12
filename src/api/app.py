@@ -87,12 +87,14 @@ def prepare_input(data: PredictionRequest) -> pd.DataFrame:
 def predict(data: PredictionRequest) -> dict:
     """Handle prediction requests and return the salary prediction results."""
     logger.info("Prediction request received")
-    model, mae = get_model()
+    result = get_model()
     logger.info("Model loaded successfully")
     X = prepare_input(data)
     logger.info("Input data prepared")
 
-    result = predict_with_uncertainty_and_confidence(model, X, fallback_error=mae)
+    result = predict_with_uncertainty_and_confidence(
+        result.model, X, fallback_error=result.mae
+    )
     logger.info("Prediction with uncertainty completed")
 
     return {
@@ -159,10 +161,10 @@ def ready() -> dict:
     """Perform readiness validation and return current model readiness state."""
     logger.info("Readiness check requested")
     try:
-        model, _ = get_model()
+        model_data = get_model()
         X = get_dummy_input()
 
-        result = check_readiness(model, X)
+        result = check_readiness(model_data.model, X)
 
         if result["status"] == "degraded":
             logger.warning("Model readiness degraded")

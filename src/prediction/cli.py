@@ -77,10 +77,10 @@ def main():
         args = parse_args()
         input = prepare_input(args)
 
-        model, mae = get_model()
+        result = get_model()
 
         result = predict_with_uncertainty_and_confidence(
-            model, input, fallback_error=mae
+            result.model, input, fallback_error=result.mae
         )
 
         print_output(

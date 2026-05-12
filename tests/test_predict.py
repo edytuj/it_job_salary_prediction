@@ -5,7 +5,7 @@ from model.model_loader import get_model
 
 
 def test_predict_output():
-    model, _ = get_model()
+    result = get_model()
 
     df = pd.DataFrame(
         [
@@ -19,6 +19,6 @@ def test_predict_output():
         ]
     )
 
-    pred = model.predict(df)
+    pred = result.model.predict(df)
 
     assert isinstance(pred[0], (int, float))

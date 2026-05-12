@@ -31,7 +31,7 @@ def prepare_input(
 def main():
     from src.model.model_loader import get_model
 
-    model, mae = get_model()
+    result = get_model()
 
     input = prepare_input(
         title="python developer",
@@ -40,7 +40,9 @@ def main():
         seniority="mid",
     )
 
-    result = predict_with_uncertainty_and_confidence(model, input, fallback_error=mae)
+    result = predict_with_uncertainty_and_confidence(
+        result.model, input, fallback_error=result.mae
+    )
 
     print_output(
         input_df,
