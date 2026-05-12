@@ -14,6 +14,8 @@ from sklearn.pipeline import Pipeline
 
 from model.pipeline import build_preprocessor
 
+from config.model_types import ModelPrefix
+
 ridge_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
 
 rf_grid = {
@@ -130,9 +132,9 @@ def train_models(X_train: pd.DataFrame, y_train: pd.Series) -> dict[str, Pipelin
     rf = train_rf_with_grid(preprocessor, X_train, y_train)
     hgb = train_hgb_with_grid(preprocessor, X_train, y_train)
 
-    models["ridge"] = ridge
-    models["random_forest"] = rf
-    models["hgb"] = hgb
+    models[ModelPrefix.RIDGE] = ridge
+    models[ModelPrefix.RF] = rf
+    models[ModelPrefix.HGB] = hgb
 
     return models
 
@@ -270,7 +272,7 @@ def main():
         print(f"R2 scores: {cv_results[model_name]}")
         print(f"R2 mean: {cv_results[model_name].mean():.4f}")
 
-    analyze_feature_importance_for_random_forest(models["random_forest"])
+    analyze_feature_importance_for_random_forest(models[ModelPrefix.RF])
 
     save_models(models, baseline_mae)
 

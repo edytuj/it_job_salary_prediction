@@ -11,6 +11,7 @@ import re
 from functools import lru_cache
 
 from utils.paths import MODELS_DIR
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,21 +22,16 @@ class ModelData:
     mae: float
 
 
-GITHUB_RELEASES_URL = (
-    "https://api.github.com/repos/edytuj/it_job_salary_prediction/releases"
-)
-
-
 def get_all_releases() -> list[dict[str, Any]]:
     """Fetch the GitHub release metadata for published model artifacts."""
     logger.info("Fetching all releases from GitHub")
-    response = requests.get(GITHUB_RELEASES_URL)
+    response = requests.get(settings.github_releases_url)
     response.raise_for_status()
     return response.json()
 
 
 def find_latest_model_in_releases(
-    url: str, prefix: str = "hgb"
+    url: str, prefix: str = settings.active_model_prefix
 ) -> tuple[str, str, str]:
     """Locate the most recent release asset pair matching the model prefix."""
     logger.info("Finding latest model in releases")
@@ -123,7 +119,7 @@ def ensure_model(prefix: str) -> Path:
     for attempt in range(2):
         try:
             downloaded_model = load_latest_model_from_github(
-                GITHUB_RELEASES_URL, prefix
+                settings.github_releases_url, prefix
             )
             logger.info("Model downloaded and verified successfully")
             return downloaded_model
@@ -202,7 +198,7 @@ def get_model() -> ModelData:
     """Load the model and cache the result to avoid repeated reloads."""
     logger.info("Getting model")
     try:
-        model_path = ensure_model(prefix="hgb")
+        model_path = ensure_model(prefix=settings.active_model_prefix)
         data = joblib.load(model_path)
         logger.info("Model loaded successfully")
         return ModelData(model=data["model"], mae=data["mae"])

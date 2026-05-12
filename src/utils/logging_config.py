@@ -1,12 +1,14 @@
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-import os
+
+from config.settings import settings
 
 
 def setup_logging():
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
-    log_dir = Path(os.getenv("LOG_DIR", "logs"))
+    log_dir = Path(settings.log_dir)
 
     log_dir.mkdir(exist_ok=True)
 

@@ -1,7 +1,6 @@
 import argparse
 import logging
 import pandas as pd
-from pathlib import Path
 from argparse import Namespace
 
 from model.model_loader import get_model
