@@ -57,7 +57,7 @@ def find_latest_model_in_releases(url: str, prefix: str) -> tuple[str, str, str]
 
         for stem, files in by_stem.items():
             if "pkl" in files and "sha256" in files:
-                logger.info(f"Found latest model: {stem}")
+                logger.info("Found latest model: %s", stem)
                 return files["pkl"], files["sha256"], stem
 
     raise ValueError(f"No model + hash with prefix '{prefix}' found in any release")
@@ -65,19 +65,19 @@ def find_latest_model_in_releases(url: str, prefix: str) -> tuple[str, str, str]
 
 def download_file(url: str, path: Path) -> None:
     """Download a file from a URL and save it to the specified local path."""
-    logger.info(f"Downloading file from {url} to {path}")
+    logger.info("Downloading file from %s to %s", url, path)
     response = requests.get(url)
     response.raise_for_status()
 
     with open(path, "wb") as f:
         f.write(response.content)
 
-    logger.info(f"Downloaded file: {path}")
+    logger.info("Downloaded file: %s", path)
 
 
 def read_expected_hash(path: Path) -> str:
     """Read and validate the expected SHA256 hash from a text file."""
-    logger.debug(f"Reading expected hash from {path}")
+    logger.debug("Reading expected hash from %s", path)
     with open(path, "r") as f:
         content = f.read().strip()
 
@@ -95,7 +95,7 @@ def read_expected_hash(path: Path) -> str:
 
 def clear_models_dir(models_dir: Path) -> None:
     """Remove all files and subdirectories from the local models directory."""
-    logger.info(f"Clearing models directory: {models_dir}")
+    logger.info("Clearing models directory: %s", models_dir)
     for item in models_dir.iterdir():
         if item.is_file():
             item.unlink()
@@ -105,7 +105,7 @@ def clear_models_dir(models_dir: Path) -> None:
 
 def ensure_model(prefix: str) -> Path:
     """Ensure a model exists locally by loading it or downloading it from GitHub."""
-    logger.info(f"Ensuring model with prefix {prefix}")
+    logger.info("Ensuring model with prefix %s", prefix)
     existing_model = load_latest_model_local(MODELS_DIR, prefix)
 
     if existing_model is not None:
@@ -122,7 +122,7 @@ def ensure_model(prefix: str) -> Path:
             logger.info("Model downloaded and verified successfully")
             return downloaded_model
         except ValueError as e:
-            logger.warning(f"Attempt {attempt + 1} failed: {e}. Retrying...")
+            logger.warning("Attempt %d failed: %s. Retrying...", attempt + 1, e)
 
             clear_models_dir(MODELS_DIR)
 
@@ -150,13 +150,13 @@ def load_latest_model_from_github(url: str, prefix: str) -> Path:
 
     verify_file(model_path, expected_hash)
 
-    logger.info(f"Model loaded from GitHub: {model_path}")
+    logger.info("Model loaded from GitHub: %s", model_path)
     return model_path
 
 
 def verify_file(path: Path, expected_hash: str) -> None:
     """Compute the SHA256 hash of a file and compare it to the expected value."""
-    logger.info(f"Verifying file: {path}")
+    logger.info("Verifying file: %s", path)
 
     sha256 = hashlib.sha256()
 
@@ -168,7 +168,9 @@ def verify_file(path: Path, expected_hash: str) -> None:
 
     if actual_hash != expected_hash:
         logger.error(
-            f"Model hash mismatch! Expected {expected_hash}, got {actual_hash}"
+            "Model hash mismatch! Expected %s, got %s",
+            expected_hash,
+            actual_hash,
         )
         raise ValueError(
             f"Model hash mismatch! Expected {expected_hash}, got {actual_hash}"
@@ -179,7 +181,9 @@ def verify_file(path: Path, expected_hash: str) -> None:
 
 def load_latest_model_local(models_dir: Path, prefix: str) -> Optional[Path]:
     """Select the latest local model file matching the configured prefix."""
-    logger.debug(f"Loading latest model local from {models_dir} with prefix {prefix}")
+    logger.debug(
+        "Loading latest model local from %s with prefix %s", models_dir, prefix
+    )
     model_files = list(models_dir.glob(f"{prefix}_*.pkl"))
 
     if not model_files:
@@ -187,7 +191,7 @@ def load_latest_model_local(models_dir: Path, prefix: str) -> Optional[Path]:
         return None
 
     latest_model = sorted(model_files)[-1]
-    logger.info(f"Loaded latest local model: {latest_model}")
+    logger.info("Loaded latest local model: %s", latest_model)
     return latest_model
 
 
@@ -201,7 +205,7 @@ def get_model(prefix=settings.active_model_prefix) -> ModelData:
         logger.info("Model loaded successfully")
         return ModelData(model=data["model"], mae=data["mae"])
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
+        logger.error("Failed to load model: %s", e)
         raise RuntimeError(f"Failed to load model: {e}") from e
 
 

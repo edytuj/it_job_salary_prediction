@@ -96,9 +96,8 @@ def predict_with_uncertainty_and_confidence(
 
     if fallback_error == 0:
         logger.warning(
-            "Warning: fallback_error is 0 — setting it to minimum value ({}) to avoid misleading confidence estimation.".format(
-                MIN_ERROR
-            )
+            "Warning: fallback_error is 0 — setting it to minimum value (%d) to avoid misleading confidence estimation.",
+            MIN_ERROR,
         )
     fallback_error = max(fallback_error, MIN_ERROR)
 
@@ -148,9 +147,12 @@ def predict_with_uncertainty_and_confidence(
     PREDICTION_LATENCY.observe(duration)
 
     logger.info(
-        "Prediction completed: mean_pred={}, low={}, high={}, std={}, method={}".format(
-            mean_pred, low, high, std, method
-        )
+        "Prediction completed: mean_pred=%s, low=%s, high=%s, std=%s, method=%s",
+        mean_pred,
+        low,
+        high,
+        std,
+        method,
     )
 
     return PredictionResult(

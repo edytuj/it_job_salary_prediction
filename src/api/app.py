@@ -34,7 +34,7 @@ class ModelNotReadyError(Exception):
 async def model_not_ready_handler(
     request: Request, exc: ModelNotReadyError
 ) -> JSONResponse:
-    logger.error(f"Model not ready: {exc}")
+    logger.error("Model not ready: %s", exc)
     return JSONResponse(
         status_code=503,
         content={"status": "degraded", "detail": str(exc)},
@@ -43,7 +43,7 @@ async def model_not_ready_handler(
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    logger.error(f"Unhandled exception: {exc}")
+    logger.error("Unhandled exception: %s", exc)
     return JSONResponse(
         status_code=500,
         content={"status": "error", "detail": "Internal server error"},
@@ -144,7 +144,10 @@ def check_readiness(model: Any, X: pd.DataFrame, threshold_ms: float = 100) -> d
 
     status = "ready" if warm_ms <= threshold_ms else "degraded"
     logger.info(
-        f"Readiness check completed: status={status}, cold_run={cold_ms:.2f}ms, warm_run={warm_ms:.2f}ms"
+        "Readiness check completed: status=%s, cold_run=%.2fms, warm_run=%.2fms",
+        status,
+        cold_ms,
+        warm_ms,
     )
 
     return {
@@ -174,7 +177,7 @@ def ready() -> dict:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error during readiness check: {e}")
+        logger.error("Error during readiness check: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
