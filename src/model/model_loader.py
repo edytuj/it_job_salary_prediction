@@ -30,9 +30,7 @@ def get_all_releases() -> list[dict[str, Any]]:
     return response.json()
 
 
-def find_latest_model_in_releases(
-    url: str, prefix: str = settings.active_model_prefix
-) -> tuple[str, str, str]:
+def find_latest_model_in_releases(url: str, prefix: str) -> tuple[str, str, str]:
     """Locate the most recent release asset pair matching the model prefix."""
     logger.info("Finding latest model in releases")
     releases = get_all_releases()
@@ -194,11 +192,11 @@ def load_latest_model_local(models_dir: Path, prefix: str) -> Optional[Path]:
 
 
 @lru_cache(maxsize=1)
-def get_model() -> ModelData:
+def get_model(prefix=settings.active_model_prefix) -> ModelData:
     """Load the model and cache the result to avoid repeated reloads."""
     logger.info("Getting model")
     try:
-        model_path = ensure_model(prefix=settings.active_model_prefix)
+        model_path = ensure_model(prefix)
         data = joblib.load(model_path)
         logger.info("Model loaded successfully")
         return ModelData(model=data["model"], mae=data["mae"])
