@@ -7,7 +7,7 @@ import pandas as pd
 from dataclasses import dataclass
 
 from utils.utils import format_salary
-from src.utils.metrics import PREDICTION_LATENCY
+from utils.metrics import PREDICTION_LATENCY
 
 MIN_ERROR = 1000  # minimum error to avoid misleading confidence estimation when fallback_error is 0
 
