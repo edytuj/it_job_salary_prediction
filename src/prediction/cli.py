@@ -1,10 +1,12 @@
 import argparse
 from argparse import Namespace
 
-import pandas as pd
-
 from model.model_loader import get_model
-from prediction.utils import predict_with_uncertainty_and_confidence, print_output
+from prediction.utils import (
+    predict_with_uncertainty_and_confidence,
+    prepare_input,
+    print_output,
+)
 from utils.logging_config import setup_logging
 
 
@@ -45,34 +47,19 @@ def validate_seniority(seniority: str) -> str:
     return seniority.strip()
 
 
-def prepare_input(args: Namespace) -> pd.DataFrame:
-
-    skills_list = parse_skills(args.skills)
-    city = validate_city(args.city)
-    seniority = validate_seniority(args.seniority)
-
-    df = pd.DataFrame(
-        [
-            {
-                "title_clean": args.title.lower(),
-                "skills_clean": skills_list,
-                "city_clean": city,
-                "seniority": seniority,
-                "skills_count": len(skills_list),
-            }
-        ]
-    )
-
-    return df
-
-
 def main():
 
     setup_logging()
 
     try:
         args = parse_args()
-        input = prepare_input(args)
+
+        input = prepare_input(
+            title=args.title,
+            skills=parse_skills(args.skills),
+            city=validate_city(args.city),
+            seniority=validate_seniority(args.seniority),
+        )
 
         result = get_model()
 

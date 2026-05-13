@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 
 from config.settings import settings
 from model.model_loader import get_model
-from prediction.utils import predict_with_uncertainty_and_confidence
+from prediction.utils import predict_with_uncertainty_and_confidence, prepare_input
 from utils.logging_config import setup_logging
 from utils.metrics import (
     REQUEST_COUNT,
@@ -65,29 +65,18 @@ class PredictionRequest(BaseModel):
     seniority: Seniority
 
 
-def prepare_input(data: PredictionRequest) -> pd.DataFrame:
-    """Convert PredictionRequest payload into a model-ready pandas DataFrame."""
-    logger.info("Preparing input data for prediction")
-    return pd.DataFrame(
-        [
-            {
-                "title_clean": data.title.lower(),
-                "skills_clean": data.skills,
-                "city_clean": data.city,
-                "seniority": data.seniority,
-                "skills_count": len(data.skills),
-            }
-        ]
-    )
-
-
 @app.post("/predict")
 def predict(data: PredictionRequest) -> dict:
     """Handle prediction requests and return the salary prediction results."""
+
     logger.info("Prediction request received")
     result = get_model()
     logger.info("Model loaded successfully")
-    X = prepare_input(data)
+
+    X = prepare_input(
+        title=data.title, skills=data.skills, city=data.city, seniority=data.seniority
+    )
+
     logger.info("Input data prepared")
 
     result = predict_with_uncertainty_and_confidence(

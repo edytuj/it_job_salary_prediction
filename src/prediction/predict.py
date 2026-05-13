@@ -1,31 +1,8 @@
-import pandas as pd
-
-from prediction.utils import predict_with_uncertainty_and_confidence, print_output
-
-
-def prepare_input(
-    title: str,
-    skills: list[str],
-    city: str,
-    seniority: str,
-) -> pd.DataFrame:
-    """
-    Prepare input data in the same format as training data.
-    """
-
-    skills = skills if isinstance(skills, list) else []
-
-    return pd.DataFrame(
-        [
-            {
-                "title_clean": title,
-                "skills_clean": skills,
-                "city_clean": city,
-                "seniority": seniority,
-                "skills_count": len(skills),
-            }
-        ]
-    )
+from prediction.utils import (
+    predict_with_uncertainty_and_confidence,
+    prepare_input,
+    print_output,
+)
 
 
 def main():

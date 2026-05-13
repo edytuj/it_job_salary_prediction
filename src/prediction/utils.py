@@ -166,6 +166,33 @@ def predict_with_uncertainty_and_confidence(
     )
 
 
+def prepare_input(
+    title: str,
+    skills: list[str],
+    city: str,
+    seniority: str,
+) -> pd.DataFrame:
+    """
+    Prepare input data in the same format as training data.
+    """
+
+    logger.info("Preparing input data for prediction")
+
+    skills = skills if isinstance(skills, list) else []
+
+    return pd.DataFrame(
+        [
+            {
+                "title_clean": title,
+                "skills_clean": skills,
+                "city_clean": city,
+                "seniority": seniority,
+                "skills_count": len(skills),
+            }
+        ]
+    )
+
+
 def print_output(
     input_df: pd.DataFrame,
     mean_pred: float,
