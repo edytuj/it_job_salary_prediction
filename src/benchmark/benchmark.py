@@ -1,24 +1,9 @@
 import statistics
 import time
 
-import pandas as pd
-
 from config.settings import settings
 from model.model_loader import get_model
-
-
-def get_dummy_input():
-    return pd.DataFrame(
-        [
-            {
-                "title_clean": "python developer",
-                "skills_clean": ["python", "aws"],
-                "city_clean": "Warszawa",
-                "seniority": "mid",
-                "skills_count": 2,
-            }
-        ]
-    )
+from prediction.sample_data import get_dummy_input
 
 
 def measure(func):

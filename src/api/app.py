@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from config.settings import settings
 from model.model_loader import get_model
+from prediction.sample_data import get_dummy_input
 from prediction.utils import predict_with_uncertainty_and_confidence, prepare_input
 from utils.logging_config import setup_logging
 from utils.metrics import (
@@ -102,22 +103,6 @@ def health() -> dict:
     """Health check endpoint returning service status."""
     logger.info("Health check requested")
     return {"status": "ok"}
-
-
-def get_dummy_input() -> pd.DataFrame:
-    """Build dummy input data used for the model readiness probe."""
-    logger.debug("Generating dummy input for readiness check")
-    return pd.DataFrame(
-        [
-            {
-                "title_clean": "python developer",
-                "skills_clean": ["python"],
-                "city_clean": "Warszawa",
-                "seniority": "mid",
-                "skills_count": 1,
-            }
-        ]
-    )
 
 
 def check_readiness(model: Any, X: pd.DataFrame, threshold_ms: float = 100) -> dict:
