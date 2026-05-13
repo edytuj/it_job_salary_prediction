@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from pathlib import Path
 
@@ -14,6 +13,7 @@ from sklearn.pipeline import Pipeline
 
 from config.model_types import ModelPrefix
 from model.pipeline import build_preprocessor
+from utils.paths import MODELS_DIR
 
 ridge_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
 
@@ -218,18 +218,12 @@ def analyze_feature_importance_for_random_forest(model: Pipeline) -> None:
 def save_models(models: dict[str, Pipeline], baseline_mae: float) -> None:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
 
-    BASE_DIR = Path(__file__).resolve().parent
-
-    PROJECT_ROOT = BASE_DIR.parent.parent
-
-    MODELS_DIR = PROJECT_ROOT / "models"
     MODELS_DIR.mkdir(exist_ok=True)
 
-    os.makedirs("MODELS_DIR/models", exist_ok=True)
-    for model_name in models:
+    for model_name, model in models.items():
         joblib.dump(
-            {"model": models[model_name], "mae": baseline_mae},
-            f"{MODELS_DIR}/{model_name}_{timestamp}.pkl",
+            {"model": model, "mae": baseline_mae},
+            MODELS_DIR / f"{model_name}_{timestamp}.pkl",
         )
 
 
