@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     github_releases_url: str = (
         "https://api.github.com/repos/edytuj/it_job_salary_prediction/releases"
     )
+    no_fluff_jobs_scrape_url: str = "https://nofluffjobs.com/pl/jobs/backend"
 
     active_model_prefix: ModelPrefix = ModelPrefix.HGB
 

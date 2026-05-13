@@ -3,10 +3,9 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
+from config.settings import settings
 from scraping.parser import parse_job_listings
 from scraping.save import save_to_csv
-
-BASE_URL = "https://nofluffjobs.com/pl/jobs/backend"
 
 CATEGORIES = [
     "backend",
@@ -57,8 +56,8 @@ def main():
         for page in range(1, 20):
             print(f'"category="{category}", page="{page}"')
 
-            url = f"{BASE_URL}/{category}?page={page}"
-            # url = f"{BASE_URL}?page={page}"
+            url = f"{settings.no_fluff_jobs_scrape_url}/{category}?page={page}"
+
             html = fetch_page(url)
 
             soup = BeautifulSoup(html, "html.parser")
