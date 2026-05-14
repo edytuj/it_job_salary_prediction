@@ -129,13 +129,6 @@ The repository follows a layered architecture separating interfaces, business lo
 └───────────────────────────────────────┘
 ```
 
-The architecture emphasizes:
-* modularity,
-* reuse across interfaces,
-* centralized model management,
-* separation of concerns,
-* operational observability.
-
 
 # Project Structure
 
@@ -185,7 +178,7 @@ conda activate salary
 pip install -r requirements.txt
 ```
 
-## 4. Install project in editable mode for local developmend
+## 4. Install project in editable mode for local development
 
 ```bash
 pip install -e .[dev]
