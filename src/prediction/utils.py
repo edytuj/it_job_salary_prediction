@@ -211,7 +211,7 @@ def print_output(
     print(f"""For offer with the following parameters:
  \ttitle\t\t= {input_df.at[0, "title_clean"]},
  \tskills\t\t= {input_df.at[0, "skills_clean"]},
- \tcity\t\t= {input_df.at[0, "city_clean"]}.title(),
+ \tcity\t\t= {input_df.at[0, "city_clean"].title()},
  \tseniority\t= {input_df.at[0, "seniority"]}\n
 -> Predicted salary:\t{format_salary(mean_pred)}.\n
 -> Estimated range:\t{format_salary(low)} – {format_salary(high)} PLN.
