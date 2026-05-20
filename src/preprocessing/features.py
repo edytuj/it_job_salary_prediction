@@ -15,18 +15,20 @@ def extract_seniority(title: str) -> Optional[str]:
     """Detect seniority level from a job title string using regex patterns."""
 
     if not isinstance(title, str):
-        return None
+        return "unknown"
+
+    print(f"Extracting seniority from title: {title}")
 
     patterns = {
         "intern": r"\bintern\b",
-        "junior": r"\bjunior\b|\bjr\b",
-        "mid": r"\bmid\b|\bmiddle\b|\bregular\b",
-        "senior": r"\bsenior\b|\bsr\b",
-        "lead": r"\blead\b|\bprincipal\b|\bstaff\b",
+        "junior": r"\bjunior\b|\bjr\b|\bjun\b",
+        "mid": r"\bmid\b|\bmiddle\b|\bregular\b|\breg\b",
+        "senior": r"\bsenior\b|\bsr\b|\bsen\b",
+        "lead": r"\blead\b|\bprincipal\b|\bstaff\b|\bhead\b|\bdirector\b|\bmanager\b",
     }
 
     for level, pattern in patterns.items():
-        if re.search(pattern, title):
+        if re.search(pattern, title.lower()):
             return level
 
     return "unknown"
