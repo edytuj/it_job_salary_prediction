@@ -4,16 +4,12 @@ from preprocessing.cleaning import (
     clean_city,
     clean_company,
     clean_skills,
-    clean_title,
 )
 from preprocessing.features import (
     add_skills_count,
     compute_salary_avg,
-    extract_seniority,
 )
-
-RAW_PATH = "data/raw/jobs_raw.csv"
-PROCESSED_PATH = "data/processed/jobs_processed.parquet"
+from utils.paths import PROCESSED_DATA_PATH, RAW_DATA_PATH
 
 MIN_SALARY_AVG = 3000
 MAX_SALARY_AVG = 100000
@@ -21,13 +17,12 @@ MAX_SALARY_AVG = 100000
 
 def main():
 
-    df = pd.read_csv(RAW_PATH)
+    df = pd.read_csv(RAW_DATA_PATH)
 
     df["salary_min"] = pd.to_numeric(df["salary_min"], errors="coerce")
     df["salary_max"] = pd.to_numeric(df["salary_max"], errors="coerce")
 
     # cleaning
-    df["title_clean"] = df["title"].apply(clean_title)
     df["company_clean"] = df["company"].apply(clean_company)
     df["city_clean"] = df["city"].apply(clean_city)
     df["skills_clean"] = df["skills"].apply(clean_skills)
@@ -37,13 +32,10 @@ def main():
     df["salary_known"] = df["salary_avg"].notna().astype(int)
     df["skills_count"] = df["skills_clean"].apply(len)
 
-    df["seniority"] = df["title"].apply(extract_seniority)
-
     df = add_skills_count(df)
 
     columns = [
         "job_id",
-        "title_clean",
         "seniority",
         "company_clean",
         "city_clean",
@@ -70,7 +62,7 @@ def main():
         errors="ignore",
     )
 
-    df.to_parquet(PROCESSED_PATH)
+    df.to_parquet(PROCESSED_DATA_PATH)
 
     print("Dataset processed and saved.")
 

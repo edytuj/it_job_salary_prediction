@@ -12,7 +12,14 @@ class SeniorityEncoder(BaseEstimator, TransformerMixin):
 
     def __init__(self, column="seniority"):
         self.column = column
-        self.mapping = {"junior": 0, "mid": 1, "senior": 2, "lead": 3, "principal": 4}
+        self.mapping = {
+            "intern": 0,
+            "junior": 1,
+            "mid": 2,
+            "senior": 3,
+            "lead": 4,
+            "manager": 5,
+        }
 
     def fit(self, X, y=None):
         return self

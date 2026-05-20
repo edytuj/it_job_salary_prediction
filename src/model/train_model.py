@@ -13,7 +13,7 @@ from sklearn.pipeline import Pipeline
 
 from config.model_types import ModelPrefix
 from model.pipeline import build_preprocessor
-from utils.paths import MODELS_DIR
+from utils.paths import MODELS_DIR, PREEPROCESSED_DATA_PATH
 
 ridge_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
 
@@ -228,7 +228,7 @@ def save_models(models: dict[str, Pipeline], baseline_mae: float) -> None:
 
 
 def main():
-    input_path = "data/processed/jobs_processed.parquet"
+    input_path = f"{PREEPROCESSED_DATA_PATH}"
 
     df = load_data(input_path)
 
@@ -265,7 +265,7 @@ def main():
         print(f"R2 scores: {cv_results[model_name]}")
         print(f"R2 mean: {cv_results[model_name].mean():.4f}")
 
-    analyze_feature_importance_for_random_forest(models[ModelPrefix.RF])
+    # analyze_feature_importance_for_random_forest(models[ModelPrefix.RF])
 
     save_models(models, baseline_mae)
 
