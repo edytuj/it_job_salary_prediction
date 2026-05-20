@@ -1,3 +1,5 @@
+import argparse
+
 import pandas as pd
 
 from utils.paths import RAW_DATA_DIR
@@ -27,13 +29,35 @@ def merge_data(
 
 
 def main():
-    old_df = pd.read_csv(OLD_DATA_PATH)
-    new_df = pd.read_csv(NEW_DATA_PATH)
 
-    merged_df = merge_data(old_df, new_df, "offer_url")
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--column",
+        type=str,
+        required=True,
+        help="Column name to prioritize when merging datasets (e.g., 'offer_url')",
+    )
+
+    args = parser.parse_args()
+
+    try:
+        print(f"Loading datasets from {OLD_DATA_PATH} and {NEW_DATA_PATH}...")
+        old_df = pd.read_csv(OLD_DATA_PATH)
+        new_df = pd.read_csv(NEW_DATA_PATH)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Make sure both old and new datasets exist before running the merge.")
+        return
+
+    merged_df = merge_data(old_df, new_df, args.column)
 
     merged_df.to_csv(MERGED_DATA_PATH, index=False)
 
     print(
-        f"Merged datasets: {OLD_DATA_PATH} and {NEW_DATA_PATH}.\n New dataset saved to {MERGED_DATA_PATH} with {len(merged_df)} rows."
+        f"Merged datasets: {OLD_DATA_PATH} and {NEW_DATA_PATH}.\nNew dataset saved to {MERGED_DATA_PATH} with {len(merged_df)} rows."
     )
+
+
+if __name__ == "__main__":
+    main()
