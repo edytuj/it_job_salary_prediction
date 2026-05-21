@@ -148,7 +148,7 @@ def parse_text_for_seniority(text: str) -> Optional[str]:
     print(f"Extracting seniority from text: {text}")
 
     patterns = {
-        "intern": r"\bintern\b|\btrainee\b|\bprakt\b",
+        "intern": r"\bintern\b|\binternship\b|\btrainee\b|\bprakt\b",
         "junior": r"\bjunior\b|\bjr\b|\bjun\b",
         "mid": r"\bmid\b|\bmiddle\b|\bregular\b|\breg\b",
         "senior": r"\bsenior\b|\bsr\b|\bsen\b|\bexpert\b",
