@@ -13,7 +13,7 @@ from sklearn.pipeline import Pipeline
 
 from config.model_types import ModelPrefix
 from model.pipeline import build_preprocessor
-from utils.paths import MODELS_DIR, PREEPROCESSED_DATA_PATH
+from utils.paths import MODELS_DIR, PROCESSED_DATA_PATH
 
 ridge_grid = {"model__alpha": [0.01, 0.1, 1, 10, 100]}
 
@@ -228,7 +228,7 @@ def save_models(models: dict[str, Pipeline], baseline_mae: float) -> None:
 
 
 def main():
-    input_path = f"{PREEPROCESSED_DATA_PATH}"
+    input_path = f"{PROCESSED_DATA_PATH}"
 
     df = load_data(input_path)
 
