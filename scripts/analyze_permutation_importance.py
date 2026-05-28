@@ -43,7 +43,12 @@ def main():
     models = train_models(X_train, y_train)
 
     for model_name, model in models.items():
-        print(f"\n{'-' * 5} Selected model: {model_name} {'-' * 5}")
+        # if model_name in [ModelPrefix.CATBOOST, ModelPrefix.XGB, ModelPrefix.LGBM]:
+        #     print(
+        #         f"\n{'-' * 5} Skipping permutation importance for {model_name} due to long computation time {'-' * 5}\n"
+        #     )
+        #     continue
+        # print(f"\n{'-' * 5} Selected model: {model_name} {'-' * 5}")
 
         print("Evaluating model...")
 

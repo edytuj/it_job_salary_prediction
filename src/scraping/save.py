@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
 from typing import Any
-
+import logging
 import pandas as pd
 
+logger = logging.getLogger(__name__)
 
 def save_to_csv(data: Any, path: str | Path) -> None:
     """
@@ -17,3 +18,5 @@ def save_to_csv(data: Any, path: str | Path) -> None:
         df.to_csv(path, mode="a", header=False, index=False)
     else:
         df.to_csv(path, mode="w", header=True, index=False)
+
+    logger.info(f"Saved {len(data)} items to {path}")
